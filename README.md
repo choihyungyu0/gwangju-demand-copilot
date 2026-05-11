@@ -26,6 +26,10 @@ npm run test:run
 ## Data pipeline commands
 
 ```bash
+python scripts/inspect_store_columns.py
+python scripts/collect_store_data.py
+python scripts/match_area_by_radius.py
+python scripts/debug_area_matches.py
 python scripts/make_mock_dataset.py
 python scripts/make_score.py
 python scripts/make_prediction_json.py

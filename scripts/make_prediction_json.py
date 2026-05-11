@@ -117,6 +117,8 @@ def make_prediction(area_rows: list[dict[str, str]]) -> dict[str, object]:
         "area_id": first["area_id"],
         "area_name": first["area_name"],
         "district": first["district"],
+        "matched_store_count": round(as_float(first, "matched_store_count")),
+        "area_radius_m": round(as_float(first, "area_radius_m")),
         "predicted_score": predicted_score,
         "change_vs_avg": change_text,
         "risk_level": risk,
