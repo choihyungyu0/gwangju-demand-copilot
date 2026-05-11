@@ -23,6 +23,14 @@ npm run dev
 npm run test:run
 ```
 
+## Data pipeline commands
+
+```bash
+python scripts/make_mock_dataset.py
+python scripts/make_score.py
+python scripts/make_prediction_json.py
+```
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction

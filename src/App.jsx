@@ -163,8 +163,8 @@ function App() {
             <h3>7일 수요 전망</h3>
             <ol className="forecast-list">
               {selectedArea.forecast.map((day) => (
-                <li key={day.day}>
-                  <span className="forecast-day">{day.day}</span>
+                <li key={day.day ?? day.date}>
+                  <span className="forecast-day">{day.day ?? day.date.slice(5)}</span>
                   <div className="forecast-bar" aria-hidden="true">
                     <span style={{ width: `${day.score}%` }} />
                   </div>
