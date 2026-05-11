@@ -1,0 +1,6 @@
+﻿area_id,area_name,district,matched_store_count,food_count,cafe_count,retail_count,accommodation_count,tourist_spot_count,event_count,culture_count,tourism_score
+A001,충장로 / 금남로,동구,4203,1140,114,1401,80,8,5,4,74
+A002,양림동 역사문화마을,남구,905,259,22,306,23,16,3,9,86
+A003,국립아시아문화전당 주변,동구,3417,842,89,1191,63,13,11,12,93
+A004,1913 송정역시장 / 광주송정역,광산구,1002,305,27,349,29,10,4,5,78
+A005,상무지구,서구,3358,1041,84,510,72,4,2,2,45
