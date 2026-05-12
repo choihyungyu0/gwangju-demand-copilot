@@ -9,6 +9,7 @@ from statistics import mean, pstdev
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 INPUT_PATH = ROOT_DIR / "data" / "processed" / "daily_area_dataset_scored.csv"
+SCORED_FEATURES_PATH = ROOT_DIR / "data" / "processed" / "area_features_scored.csv"
 AREA_FEATURES_PATH = ROOT_DIR / "data" / "processed" / "area_features_full.csv"
 TOURISM_FEATURES_PATH = ROOT_DIR / "data" / "processed" / "tourism_area_features.csv"
 OUTPUT_PATH = ROOT_DIR / "public" / "predictions.json"
@@ -20,18 +21,14 @@ def read_rows() -> list[dict[str, str]]:
 
 
 def read_area_features() -> dict[str, dict[str, str]]:
-    feature_path = AREA_FEATURES_PATH if AREA_FEATURES_PATH.exists() else TOURISM_FEATURES_PATH
-    if not feature_path.exists():
-        print("No area feature enrichment CSV found. Using scored daily data fallback.")
-        return {}
+    for feature_path in [SCORED_FEATURES_PATH, AREA_FEATURES_PATH, TOURISM_FEATURES_PATH]:
+        if feature_path.exists():
+            print(f"Reading area feature enrichment: {feature_path}")
+            with feature_path.open("r", encoding="utf-8-sig", newline="") as file:
+                return {row["area_id"]: row for row in csv.DictReader(file)}
 
-    print(f"Reading area feature enrichment: {feature_path}")
-    with feature_path.open("r", encoding="utf-8-sig", newline="") as file:
-        return {row["area_id"]: row for row in csv.DictReader(file)}
-
-
-def as_float(row: dict[str, str], column: str) -> float:
-    return float(row[column])
+    print("No area feature enrichment CSV found. Using scored daily data fallback.")
+    return {}
 
 
 def row_float(row: dict[str, str], column: str, fallback: float = 0) -> float:
@@ -58,6 +55,13 @@ def feature_float(
         return fallback
 
 
+def feature_text(feature_row: dict[str, str], column: str, fallback: str) -> str:
+    value = feature_row.get(column)
+    if value in (None, ""):
+        return fallback
+    return value
+
+
 def pct_change(current: float, baseline: float) -> str:
     if baseline == 0:
         return "+0%"
@@ -66,43 +70,53 @@ def pct_change(current: float, baseline: float) -> str:
     return f"{sign}{value}%"
 
 
-def risk_level(
-    latest_rows: list[dict[str, str]],
-    predicted_score: int,
-    weather_risk_level: str,
-    rain_flag: int,
-) -> str:
-    rain_days = sum(int(row["rain_flag"]) for row in latest_rows)
-    scores = [as_float(row, "demand_score") for row in latest_rows]
-    volatility = pstdev(scores) if len(scores) > 1 else 0
-
-    if weather_risk_level == "높음" or predicted_score < 55 or rain_days >= 2 or volatility >= 18:
-        return "높음"
-    if weather_risk_level == "중간" or rain_flag == 1 or predicted_score < 72 or rain_days == 1 or volatility >= 10:
-        return "중간"
-    return "낮음"
-
-
 def weighted_demand_score(
     commercial_score: float,
-    tourism_score: float,
-    visitor_score: float,
-    event_score: float,
-    weather_score: float,
+    tourism_component_score: float,
+    visitor_component_score: float,
+    event_component_score: float,
+    weather_component_score: float,
 ) -> float:
     return (
         commercial_score * 0.25
-        + tourism_score * 0.2
-        + visitor_score * 0.25
-        + event_score * 0.1
-        + weather_score * 0.2
+        + tourism_component_score * 0.20
+        + visitor_component_score * 0.25
+        + event_component_score * 0.10
+        + weather_component_score * 0.20
     )
+
+
+def score_level_from_score(score: int) -> str:
+    if score >= 85:
+        return "매우 높음"
+    if score >= 70:
+        return "높음"
+    if score >= 55:
+        return "보통"
+    return "낮음"
 
 
 def weather_risk_from_score(weather_score: float, rain_flag: int, rain_mm: float) -> str:
     if rain_mm >= 15 or weather_score < 55:
         return "높음"
     if rain_flag == 1 or rain_mm >= 5 or weather_score < 75:
+        return "중간"
+    return "낮음"
+
+
+def risk_level(
+    latest_rows: list[dict[str, str]],
+    predicted_score: int,
+    weather_risk_level: str,
+    rain_flag: int,
+) -> str:
+    rain_days = sum(round(row_float(row, "rain_flag")) for row in latest_rows)
+    scores = [row_float(row, "demand_score") for row in latest_rows]
+    volatility = pstdev(scores) if len(scores) > 1 else 0
+
+    if weather_risk_level == "높음" or predicted_score < 55 or rain_days >= 2 or volatility >= 18:
+        return "높음"
+    if weather_risk_level == "중간" or rain_flag == 1 or predicted_score < 72 or rain_days == 1 or volatility >= 10:
         return "중간"
     return "낮음"
 
@@ -126,129 +140,86 @@ def classify_area(
     return "상업·관광 혼합 상권"
 
 
-def topic_particle(text: str) -> str:
-    for character in reversed(text.strip()):
-        if "가" <= character <= "힣":
-            return "은" if (ord(character) - ord("가")) % 28 else "는"
-    return "는"
-
-
-def build_top_factors(
-    latest_rows: list[dict[str, str]],
-    visitor_score: int,
+def default_score_reason(
+    commercial_score: int,
+    tourism_component_score: int,
+    visitor_component_score: int,
+    event_component_score: int,
+    weather_component_score: int,
     visitor_growth: float,
     rain_flag: int,
-    weather_score: int,
     weather_risk_level: str,
 ) -> list[str]:
-    avg_visitor = mean(as_float(row, "visitor_score") for row in latest_rows)
-    avg_event = mean(as_float(row, "event_score") for row in latest_rows)
-    avg_tourism = mean(as_float(row, "tourism_score") for row in latest_rows)
-    avg_store = mean(as_float(row, "store_score") for row in latest_rows)
+    reasons: list[str] = []
+    if commercial_score >= 70:
+        reasons.append("상권 밀집도가 높아 기본 수요가 높습니다.")
+    elif commercial_score <= 30:
+        reasons.append("상권 밀집도는 낮지만 목적 방문 수요를 함께 확인해야 합니다.")
+    else:
+        reasons.append("상권 밀집도는 안정적인 기본 수요를 만듭니다.")
 
-    factors: list[str] = []
-    if visitor_score >= 80:
-        factors.append("방문 수요 높음")
-    if visitor_growth > 0:
-        factors.append("방문자 증가 추세")
+    if tourism_component_score >= 70 or event_component_score >= 60:
+        reasons.append("관광/행사 영향으로 주말 방문 가능성이 높습니다.")
+    else:
+        reasons.append("관광/행사 영향은 제한적이어서 생활권 수요 비중이 큽니다.")
+
+    if visitor_component_score >= 80 or visitor_growth > 0:
+        reasons.append("방문자 증가 추세가 있어 수요 상승 가능성이 있습니다.")
     elif visitor_growth < 0:
-        factors.append("방문자 감소 가능성")
-    if weather_risk_level == "높음":
-        factors.append("날씨 리스크 높음")
-    if rain_flag == 1:
-        factors.append("강수로 인한 야외 수요 감소 가능성")
-    if weather_score >= 80 and weather_risk_level != "높음":
-        factors.append("날씨 양호")
+        reasons.append("방문자 감소 가능성이 있어 보수적인 운영이 필요합니다.")
+    else:
+        reasons.append("방문 수요는 안정적인 흐름을 보입니다.")
 
-    candidates = [
-        (avg_visitor, "방문자 흐름이 수요 점수에 기여"),
-        (avg_event, "행사·이벤트 일정이 단기 수요를 끌어올림"),
-        (avg_tourism, "관광 자원 밀도가 방문 목적성을 강화"),
-        (avg_store, "상가·음식·소매 밀도가 소비 전환 가능성을 높임"),
-        (weather_score, "날씨 조건이 보행과 체류 수요에 영향"),
-    ]
-    candidates.sort(reverse=True, key=lambda item: item[0])
-    for _, label in candidates:
-        if label not in factors:
-            factors.append(label)
-        if len(factors) >= 4:
-            break
-    return factors
+    if weather_risk_level == "높음" or rain_flag == 1:
+        reasons.append("강수 리스크가 있어 야외 유입은 줄어들 수 있습니다.")
+    elif weather_component_score >= 80:
+        reasons.append("날씨 조건이 양호해 외부 유입에 유리합니다.")
+
+    return reasons[:3]
 
 
-def build_recommendations(
-    area_name: str,
-    latest_rows: list[dict[str, str]],
+def default_risk_summary(
     predicted_score: int,
-    risk: str,
+    rain_flag: int,
+    rain_mm: float,
+    weather_risk_level: str,
+) -> str:
+    if weather_risk_level == "높음" or rain_mm >= 15:
+        return "강수 리스크가 높아 야외 홍보와 보행 유입은 보수적으로 보는 것이 좋습니다."
+    if rain_flag == 1:
+        return "비 예보가 있어 실내 유입 동선과 우천 안내를 준비해야 합니다."
+    if predicted_score < 55:
+        return "수요 점수가 낮아 재고와 인력 운영을 보수적으로 잡는 것이 좋습니다."
+    return "큰 날씨 리스크는 낮은 편이며 기본 수요 흐름을 중심으로 운영할 수 있습니다."
+
+
+def default_actions(
+    predicted_score: int,
+    event_component_score: int,
+    visitor_growth: float,
     rain_flag: int,
     weather_risk_level: str,
 ) -> list[str]:
-    avg_food = mean(as_float(row, "food_count") for row in latest_rows)
-    avg_cafe = mean(as_float(row, "cafe_count") for row in latest_rows)
-    avg_event = mean(as_float(row, "event_count") for row in latest_rows)
-    rain_days = sum(int(row["rain_flag"]) for row in latest_rows)
-
-    recommendations: list[str] = []
+    actions: list[str] = []
     if predicted_score >= 80:
-        recommendations.append("피크 시간대 판매·응대 인력을 보강")
+        actions.append("피크 시간대 판매·응대 인력을 미리 보강하세요.")
+    elif predicted_score >= 60:
+        actions.append("기본 인력은 유지하고 점심·저녁 피크에 탄력 배치하세요.")
     else:
-        recommendations.append("고정 인력은 유지하고 시간대별 탄력 배치를 준비")
+        actions.append("고정비를 줄이고 소량 재고 중심으로 운영하세요.")
 
-    if avg_food >= 300:
-        recommendations.append("식음 인기 품목 재고를 선제적으로 확대")
-    elif avg_cafe >= 140:
-        recommendations.append("카페·디저트 체류형 상품을 전면 배치")
+    if rain_flag == 1 or weather_risk_level == "높음":
+        actions.append("우천 안내, 실내 체류 상품, 배달 노출을 강화하세요.")
     else:
-        recommendations.append("소량 재고와 빠른 회전 상품 중심으로 운영")
+        actions.append("매장 앞 안내와 현장 쿠폰으로 보행 유입을 높이세요.")
 
-    if avg_event >= 4:
-        recommendations.append("행사 전후 2시간 프로모션과 안내 문구를 준비")
-    elif rain_days > 0 or rain_flag == 1:
-        recommendations.append("우천 가능일에는 배달·실내 체류 상품 노출을 강화")
+    if event_component_score >= 60:
+        actions.append("행사 전후 2시간 프로모션과 빠른 결제 동선을 준비하세요.")
+    elif visitor_growth > 0:
+        actions.append("방문자 증가에 맞춰 인기 품목 재고를 선제적으로 확보하세요.")
     else:
-        recommendations.append(f"{area_name} 방문객 대상 현장 쿠폰을 운영")
-
-    if risk == "높음" or weather_risk_level == "높음":
-        recommendations.append("예약 취소와 우천 변수에 대비해 당일 발주를 보수적으로 조정")
-
-    return recommendations[:4]
-
-
-def build_summary(
-    area_name: str,
-    predicted_score: int,
-    change_text: str,
-    risk: str,
-    area_type: str,
-    tourism_score: int,
-    event_count: int,
-    culture_count: int,
-    visitor_score: int,
-    visitor_growth: float,
-    visitor_summary: str,
-    temp: float,
-    rain_mm: float,
-    rain_flag: int,
-    weather_score: int,
-    weather_risk_level: str,
-    weather_summary: str,
-) -> str:
-    area_with_particle = f"{area_name}{topic_particle(area_name)}"
-    growth_text = f"{visitor_growth:+.1f}%"
-    rain_text = "있음" if rain_flag == 1 else "없음"
-    return (
-        f"{area_with_particle} {area_type}입니다. 최근 7일 예측 수요는 {predicted_score}점이며 "
-        f"이전 기간 평균 대비 {change_text}입니다. 관광 점수는 {tourism_score}점, "
-        f"행사 영향 지표는 {event_count}건, 문화시설은 {culture_count}곳 수준입니다. "
-        f"방문 수요 점수는 {visitor_score}점이고 방문자 증가율은 {growth_text}입니다. "
-        f"{visitor_summary}. "
-        f"날씨는 {temp:.1f}도, 강수량 {rain_mm:.1f}mm, 비 여부는 {rain_text}이고 "
-        f"날씨 점수는 {weather_score}점입니다. 날씨 리스크는 {weather_risk_level} 수준입니다. "
-        f"{weather_summary}. "
-        f"운영 리스크는 {risk} 수준으로 "
-        "상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다."
-    )
+        actions.append("단골·생활권 고객 대상 재방문 혜택을 운영하세요.")
+    return actions[:3]
 
 
 def make_prediction(
@@ -261,57 +232,50 @@ def make_prediction(
 
     first = latest_rows[0]
     area_features = area_feature_map.get(first["area_id"], {})
+
     matched_store_count = round(
-        feature_float(area_features, "matched_store_count", as_float(first, "matched_store_count"))
+        feature_float(area_features, "matched_store_count", row_float(first, "matched_store_count"))
     )
+    food_count = round(feature_float(area_features, "food_count", row_float(first, "food_count")))
     tourism_score = round(
         feature_float(
             area_features,
             "tourism_score",
-            mean(as_float(row, "tourism_score") for row in latest_rows),
+            mean(row_float(row, "tourism_score") for row in latest_rows),
         )
     )
     tourist_spot_count = round(
-        feature_float(area_features, "tourist_spot_count", as_float(first, "tourist_spot_count"))
+        feature_float(area_features, "tourist_spot_count", row_float(first, "tourist_spot_count"))
     )
     event_count = round(
         feature_float(
             area_features,
             "event_count",
-            mean(as_float(row, "event_count") for row in latest_rows),
+            mean(row_float(row, "event_count") for row in latest_rows),
         )
     )
-    culture_count = round(
-        feature_float(area_features, "culture_count", row_float(first, "culture_count"))
-    )
-    food_count = round(feature_float(area_features, "food_count", as_float(first, "food_count")))
+    culture_count = round(feature_float(area_features, "culture_count", row_float(first, "culture_count")))
+
     visitor_count_gu = round(
-        feature_float(area_features, "visitor_count_gu", as_float(first, "visitor_count_gu"))
+        feature_float(area_features, "visitor_count_gu", row_float(first, "visitor_count_gu"))
     )
     visitor_growth = feature_float(area_features, "visitor_growth", 0)
     visitor_score = round(
         feature_float(
             area_features,
             "visitor_score",
-            mean(as_float(row, "visitor_score") for row in latest_rows),
+            mean(row_float(row, "visitor_score") for row in latest_rows),
         )
     )
-    visitor_summary = area_features.get("visitor_summary") or "방문자 feature 정보 없음"
+    visitor_summary = feature_text(area_features, "visitor_summary", "방문자 feature 정보 없음")
+
     temp = round(
-        feature_float(
-            area_features,
-            "temp",
-            mean(row_float(row, "temp") for row in latest_rows),
-        ),
+        feature_float(area_features, "temp", mean(row_float(row, "temp") for row in latest_rows)),
         1,
     )
     rain_mm = round(feature_float(area_features, "rain_mm", 0), 1)
     rain_flag = round(
-        feature_float(
-            area_features,
-            "rain_flag",
-            max(row_float(row, "rain_flag") for row in latest_rows),
-        )
+        feature_float(area_features, "rain_flag", max(row_float(row, "rain_flag") for row in latest_rows))
     )
     weather_score = round(
         feature_float(
@@ -320,10 +284,66 @@ def make_prediction(
             mean(row_float(row, "weather_score") for row in latest_rows),
         )
     )
-    weather_risk_level = area_features.get("weather_risk_level") or weather_risk_from_score(
-        weather_score, rain_flag, rain_mm
+    weather_risk_level = feature_text(
+        area_features,
+        "weather_risk_level",
+        weather_risk_from_score(weather_score, rain_flag, rain_mm),
     )
-    weather_summary = area_features.get("weather_summary") or "날씨 feature 정보 없음"
+    weather_summary = feature_text(area_features, "weather_summary", "날씨 feature 정보 없음")
+
+    commercial_score = round(
+        feature_float(
+            area_features,
+            "commercial_score",
+            mean(row_float(row, "store_score") for row in latest_rows),
+        )
+    )
+    tourism_component_score = round(
+        feature_float(area_features, "tourism_component_score", tourism_score)
+    )
+    visitor_component_score = round(
+        feature_float(area_features, "visitor_component_score", visitor_score)
+    )
+    event_component_score = round(
+        feature_float(
+            area_features,
+            "event_component_score",
+            mean(row_float(row, "event_score") for row in latest_rows),
+        )
+    )
+    weather_component_score = round(
+        feature_float(area_features, "weather_component_score", weather_score)
+    )
+
+    latest_scores = [
+        weighted_demand_score(
+            commercial_score,
+            tourism_component_score,
+            visitor_component_score,
+            event_component_score,
+            weather_component_score,
+        )
+        for _ in latest_rows
+    ]
+    history_scores = [
+        weighted_demand_score(
+            commercial_score,
+            tourism_component_score,
+            visitor_component_score,
+            event_component_score,
+            weather_component_score,
+        )
+        for _ in history_rows
+    ]
+    latest_avg = mean(latest_scores)
+    history_avg = mean(history_scores)
+    predicted_score = round(feature_float(area_features, "predicted_score", latest_avg))
+    change_text = pct_change(latest_avg, history_avg)
+    risk = risk_level(latest_rows, predicted_score, weather_risk_level, rain_flag)
+
+    score_level = feature_text(
+        area_features, "score_level", score_level_from_score(predicted_score)
+    )
     area_type = classify_area(
         first["area_name"],
         tourism_score,
@@ -332,38 +352,64 @@ def make_prediction(
         matched_store_count,
         food_count,
     )
-    latest_scores = [
-        weighted_demand_score(
-            as_float(row, "store_score"),
-            tourism_score,
-            visitor_score,
-            as_float(row, "event_score"),
-            weather_score,
-        )
-        for row in latest_rows
+
+    fallback_reasons = default_score_reason(
+        commercial_score,
+        tourism_component_score,
+        visitor_component_score,
+        event_component_score,
+        weather_component_score,
+        visitor_growth,
+        rain_flag,
+        weather_risk_level,
+    )
+    score_reason_1 = feature_text(area_features, "score_reason_1", fallback_reasons[0])
+    score_reason_2 = feature_text(area_features, "score_reason_2", fallback_reasons[1])
+    score_reason_3 = feature_text(area_features, "score_reason_3", fallback_reasons[2])
+    score_reasons = [score_reason_1, score_reason_2, score_reason_3]
+
+    risk_summary = feature_text(
+        area_features,
+        "risk_summary",
+        default_risk_summary(predicted_score, rain_flag, rain_mm, weather_risk_level),
+    )
+    fallback_actions = default_actions(
+        predicted_score,
+        event_component_score,
+        visitor_growth,
+        rain_flag,
+        weather_risk_level,
+    )
+    recommended_action_1 = feature_text(
+        area_features, "recommended_action_1", fallback_actions[0]
+    )
+    recommended_action_2 = feature_text(
+        area_features, "recommended_action_2", fallback_actions[1]
+    )
+    recommended_action_3 = feature_text(
+        area_features, "recommended_action_3", fallback_actions[2]
+    )
+    recommended_actions = [
+        recommended_action_1,
+        recommended_action_2,
+        recommended_action_3,
     ]
-    history_scores = [
-        weighted_demand_score(
-            as_float(row, "store_score"),
-            tourism_score,
-            visitor_score,
-            as_float(row, "event_score"),
-            weather_score,
-        )
-        for row in history_rows
-    ]
-    latest_avg = mean(latest_scores)
-    history_avg = mean(history_scores)
-    predicted_score = round(latest_avg)
-    change_text = pct_change(latest_avg, history_avg)
-    risk = risk_level(latest_rows, predicted_score, weather_risk_level, rain_flag)
+
+    score_summary = feature_text(
+        area_features,
+        "score_summary",
+        (
+            f"{first['area_name']}의 최종 수요예측 점수는 {predicted_score}점이며 "
+            f"{score_level} 수준입니다. 상권, 관광/행사, 방문 흐름, 날씨를 함께 반영했습니다."
+        ),
+    )
 
     return {
         "area_id": first["area_id"],
         "area_name": first["area_name"],
         "district": first["district"],
         "matched_store_count": matched_store_count,
-        "area_radius_m": round(as_float(first, "area_radius_m")),
+        "area_radius_m": round(row_float(first, "area_radius_m")),
         "tourism_score": tourism_score,
         "tourist_spot_count": tourist_spot_count,
         "event_count": event_count,
@@ -380,43 +426,25 @@ def make_prediction(
         "weather_summary": weather_summary,
         "area_type_summary": area_type,
         "predicted_score": predicted_score,
+        "commercial_score": commercial_score,
+        "tourism_component_score": tourism_component_score,
+        "visitor_component_score": visitor_component_score,
+        "event_component_score": event_component_score,
+        "weather_component_score": weather_component_score,
+        "score_level": score_level,
+        "score_summary": score_summary,
+        "score_reason_1": score_reason_1,
+        "score_reason_2": score_reason_2,
+        "score_reason_3": score_reason_3,
+        "risk_summary": risk_summary,
+        "recommended_action_1": recommended_action_1,
+        "recommended_action_2": recommended_action_2,
+        "recommended_action_3": recommended_action_3,
         "change_vs_avg": change_text,
         "risk_level": risk,
-        "summary": build_summary(
-            first["area_name"],
-            predicted_score,
-            change_text,
-            risk,
-            area_type,
-            tourism_score,
-            event_count,
-            culture_count,
-            visitor_score,
-            visitor_growth,
-            visitor_summary,
-            temp,
-            rain_mm,
-            rain_flag,
-            weather_score,
-            weather_risk_level,
-            weather_summary,
-        ),
-        "top_factors": build_top_factors(
-            latest_rows,
-            visitor_score,
-            visitor_growth,
-            rain_flag,
-            weather_score,
-            weather_risk_level,
-        ),
-        "recommendations": build_recommendations(
-            first["area_name"],
-            latest_rows,
-            predicted_score,
-            risk,
-            rain_flag,
-            weather_risk_level,
-        ),
+        "summary": f"{score_summary} {risk_summary}",
+        "top_factors": score_reasons,
+        "recommendations": recommended_actions,
         "forecast": [
             {"date": row["date"], "score": round(score)}
             for row, score in zip(latest_rows, latest_scores)

@@ -1,8 +1,17 @@
 export function getScoreLabel(score) {
-  if (score >= 90) return '매우 높음'
-  if (score >= 80) return '높음'
-  if (score >= 60) return '보통'
+  const value = Number(score) || 0
+  if (value >= 85) return '매우 높음'
+  if (value >= 70) return '높음'
+  if (value >= 55) return '보통'
   return '낮음'
+}
+
+export function getScoreBadgeText(score) {
+  const value = Number(score) || 0
+  if (value >= 85) return '수요 집중 구간'
+  if (value >= 70) return '성장 대응 구간'
+  if (value >= 55) return '기본 운영 구간'
+  return '보수 운영 구간'
 }
 
 export function getRiskClass(riskLevel) {
@@ -19,55 +28,84 @@ function toTextList(items) {
   return Array.isArray(items) ? items.join(', ') : String(items ?? '')
 }
 
+function numberValue(value, fallback = 0) {
+  const number = Number(value)
+  return Number.isFinite(number) ? number : fallback
+}
+
+function scoreReasons(area) {
+  return [
+    area.score_reason_1,
+    area.score_reason_2,
+    area.score_reason_3,
+  ].filter(Boolean)
+}
+
+function recommendedActions(area) {
+  return [
+    area.recommended_action_1,
+    area.recommended_action_2,
+    area.recommended_action_3,
+  ].filter(Boolean)
+}
+
+export function buildScoreExplanation(area) {
+  if (!area) {
+    return '선택된 지역 데이터가 없습니다.'
+  }
+
+  const predictedScore = numberValue(area.predicted_score)
+  const scoreLevel = area.score_level ?? getScoreLabel(predictedScore)
+  const reasons = scoreReasons(area)
+  const actions = recommendedActions(area)
+  const strongestReason = reasons[0] ?? '상권, 방문, 관광, 날씨 요인을 함께 반영했습니다.'
+  const actionText = actions.length > 0 ? toTextList(actions) : '기본 운영을 유지하세요.'
+
+  return [
+    area.score_summary ??
+      `${area.area_name}의 최종 수요예측 점수는 ${predictedScore}점이며 ${scoreLevel} 수준입니다.`,
+    `점수 구성은 상권 ${numberValue(area.commercial_score)}점, 관광 ${numberValue(area.tourism_component_score)}점, 방문 수요 ${numberValue(area.visitor_component_score)}점, 행사 영향 ${numberValue(area.event_component_score)}점, 날씨 ${numberValue(area.weather_component_score)}점입니다.`,
+    `가장 큰 근거는 "${strongestReason}" 입니다.`,
+    `리스크 요약: ${area.risk_summary ?? '특이 리스크 정보가 없습니다.'}`,
+    `추천 행동: ${actionText}`,
+  ].join('\n')
+}
+
 export function buildCopilotAnswer(area, question = '') {
   if (!area) {
     return '선택된 지역 데이터가 없습니다.'
   }
 
-  const factors = toTextList(area.top_factors)
-  const recommendations = toTextList(area.recommendations)
-  const areaType = area.area_type_summary ?? '상권 유형 정보 없음'
-  const tourismScore = area.tourism_score ?? 0
-  const touristSpotCount = area.tourist_spot_count ?? 0
-  const eventCount = area.event_count ?? 0
-  const cultureCount = area.culture_count ?? 0
-  const visitorCount = area.visitor_count_gu ?? 0
-  const visitorGrowth = area.visitor_growth ?? 0
-  const visitorScore = area.visitor_score ?? 0
-  const visitorSummary = area.visitor_summary ?? '방문 수요 정보 없음'
+  const predictedScore = numberValue(area.predicted_score)
+  const reasons = scoreReasons(area)
+  const actions = recommendedActions(area)
+  const actionText = actions.length > 0 ? toTextList(actions) : '기본 운영을 유지하세요'
+  const strongestReason = reasons[0] ?? '복합 수요 요인이 반영되었습니다.'
+  const tourismScore = numberValue(area.tourism_component_score, area.tourism_score ?? 0)
+  const visitorScore = numberValue(area.visitor_component_score, area.visitor_score ?? 0)
+  const weatherScore = numberValue(area.weather_component_score, area.weather_score ?? 0)
+  const eventScore = numberValue(area.event_component_score)
+  const visitorGrowth = numberValue(area.visitor_growth)
   const visitorGrowthText = `${visitorGrowth > 0 ? '+' : ''}${visitorGrowth}%`
-  const temp = area.temp ?? 0
-  const rainMm = area.rain_mm ?? 0
-  const rainFlag = area.rain_flag ?? 0
-  const weatherScore = area.weather_score ?? 0
+  const rainFlag = numberValue(area.rain_flag)
   const weatherRiskLevel = area.weather_risk_level ?? '정보 없음'
-  const weatherSummary = area.weather_summary ?? '날씨 정보 없음'
-  const rainText = Number(rainFlag) === 1 ? '강수 있음' : '강수 영향 낮음'
-  const visitorTrend =
-    visitorGrowth > 0
-      ? '방문자 증가 추세가 있어 수요 상승 가능성이 있습니다.'
-      : visitorGrowth < 0
-        ? '방문자 감소 가능성이 있어 보수적인 운영이 필요합니다.'
-        : '방문자 흐름은 안정적인 편입니다.'
-  const weatherAction =
-    Number(rainFlag) === 1 || weatherRiskLevel === '높음'
-      ? '방문 수요가 있더라도 야외 홍보보다는 실내 유입 전략과 우천 안내를 준비하는 것이 좋습니다.'
-      : '날씨가 양호해 야외 동선 안내와 현장 프로모션을 함께 운영하기 좋습니다.'
+  const weatherImpact =
+    rainFlag === 1 || weatherRiskLevel === '높음'
+      ? '강수 가능성이 있어 야외 홍보보다 실내 유입 전략과 우천 안내가 중요합니다.'
+      : '날씨 부담이 낮아 현장 홍보와 보행 유입 전략을 함께 가져갈 수 있습니다.'
   const normalizedQuestion = question.trim()
   const questionContext = normalizedQuestion
     ? `질문: ${normalizedQuestion}`
     : '질문: 현재 선택 지역의 운영 대응 방향'
 
   return [
-    `${questionContext}`,
-    `${area.area_name}의 예측 수요 점수는 ${area.predicted_score}점(${getScoreLabel(area.predicted_score)})입니다.`,
-    `상권 유형은 ${areaType}이며 관광 점수 ${tourismScore}점, 관광지 ${touristSpotCount}곳, 행사 ${eventCount}건, 문화시설 ${cultureCount}곳입니다.`,
-    `방문 수요 점수는 ${visitorScore}점이고 방문자 수는 ${visitorCount.toLocaleString('ko-KR')}명, 증가율은 ${visitorGrowthText}입니다. ${visitorTrend}`,
-    `방문 수요 요약: ${visitorSummary}`,
-    `날씨는 ${Number(temp).toFixed(1)}℃, 강수량 ${Number(rainMm).toFixed(1)}mm, ${rainText}입니다. 날씨 점수는 ${weatherScore}점이고 리스크는 ${weatherRiskLevel}입니다. ${weatherSummary}`,
-    `${weatherAction}`,
-    `주요 요인은 ${factors}입니다.`,
-    `추천 실행은 ${recommendations}입니다.`,
-    `현재는 mock 데이터 기반 답변이며 외부 AI API는 호출하지 않습니다.`,
+    questionContext,
+    `${area.area_name}의 최종 수요예측 점수는 ${predictedScore}점(${area.score_level ?? getScoreLabel(predictedScore)}, ${getScoreBadgeText(predictedScore)})입니다.`,
+    `가장 강한 근거는 ${strongestReason}`,
+    `관광/행사 영향은 관광 ${tourismScore}점, 행사 ${eventScore}점으로 반영됐고 방문 수요는 ${visitorScore}점, 방문자 증가율은 ${visitorGrowthText}입니다.`,
+    `날씨 점수는 ${weatherScore}점이며 리스크는 ${weatherRiskLevel}입니다. ${weatherImpact}`,
+    `리스크 요약: ${area.risk_summary ?? '특이 리스크 정보가 없습니다.'}`,
+    `추천 행동은 ${actionText}입니다.`,
+    '현재는 MVP scoring formula와 mock/공공데이터 feature 기반 답변이며 외부 AI API는 호출하지 않습니다.',
   ].join('\n')
 }

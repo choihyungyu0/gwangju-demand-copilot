@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import { buildCopilotAnswer, getRiskClass, getScoreLabel } from './utils/demand'
+import {
+  buildCopilotAnswer,
+  getRiskClass,
+  getScoreBadgeText,
+  getScoreLabel,
+} from './utils/demand'
 
 function App() {
   const [areas, setAreas] = useState([])
@@ -87,6 +92,25 @@ function App() {
   const tempText = `${Number(temp).toFixed(1)}℃`
   const rainMmText = `${Number(rainMm).toFixed(1)}mm`
   const rainText = Number(rainFlag) === 1 ? '예' : '아니오'
+  const scoreLevel = selectedArea.score_level ?? getScoreLabel(selectedArea.predicted_score)
+  const scoreBadgeText = getScoreBadgeText(selectedArea.predicted_score)
+  const scoreSummary = selectedArea.score_summary ?? selectedArea.summary
+  const commercialScore = selectedArea.commercial_score ?? 0
+  const tourismComponentScore = selectedArea.tourism_component_score ?? tourismScore
+  const visitorComponentScore = selectedArea.visitor_component_score ?? visitorScore
+  const eventComponentScore = selectedArea.event_component_score ?? 0
+  const weatherComponentScore = selectedArea.weather_component_score ?? weatherScore
+  const scoreReasons = [
+    selectedArea.score_reason_1,
+    selectedArea.score_reason_2,
+    selectedArea.score_reason_3,
+  ].filter(Boolean)
+  const riskSummary = selectedArea.risk_summary ?? '리스크 정보 없음'
+  const recommendedActions = [
+    selectedArea.recommended_action_1,
+    selectedArea.recommended_action_2,
+    selectedArea.recommended_action_3,
+  ].filter(Boolean)
 
   return (
     <main className="app-shell">
@@ -147,18 +171,68 @@ function App() {
 
           <div className="metric-row">
             <div className="metric-card score-metric">
-              <span>수요 점수</span>
+              <span>최종 수요예측 점수</span>
               <strong>{selectedArea.predicted_score}</strong>
-              <em>{getScoreLabel(selectedArea.predicted_score)}</em>
+              <em>{scoreBadgeText}</em>
             </div>
             <div className="metric-card">
-              <span>평균 대비</span>
-              <strong>{selectedArea.change_vs_avg}</strong>
-              <em>최근 평균 기준</em>
+              <span>점수 등급</span>
+              <strong>{scoreLevel}</strong>
+              <em>최근 평균 대비 {selectedArea.change_vs_avg}</em>
             </div>
           </div>
 
-          <p className="summary">{selectedArea.summary}</p>
+          <p className="summary">{scoreSummary}</p>
+
+          <section className="score-section" aria-labelledby="score-title">
+            <div>
+              <h3 id="score-title">점수 구성</h3>
+              <p>최종 점수는 5개 구성 요소의 가중합으로 계산됩니다.</p>
+            </div>
+            <dl className="score-components" aria-label="수요예측 점수 구성">
+              <div>
+                <dt>상권 점수</dt>
+                <dd>{commercialScore}</dd>
+              </div>
+              <div>
+                <dt>관광 점수</dt>
+                <dd>{tourismComponentScore}</dd>
+              </div>
+              <div>
+                <dt>방문 수요 점수</dt>
+                <dd>{visitorComponentScore}</dd>
+              </div>
+              <div>
+                <dt>행사 영향 점수</dt>
+                <dd>{eventComponentScore}</dd>
+              </div>
+              <div>
+                <dt>날씨 점수</dt>
+                <dd>{weatherComponentScore}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <div className="score-explain-grid">
+            <section>
+              <h3>예측 근거 3개</h3>
+              <ol>
+                {scoreReasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ol>
+            </section>
+            <section>
+              <h3>리스크 요약</h3>
+              <p className="risk-summary">{riskSummary}</p>
+              <h3 className="subsection-title">추천 행동 3개</h3>
+              <ol>
+                {recommendedActions.map((action) => (
+                  <li key={action}>{action}</li>
+                ))}
+              </ol>
+            </section>
+          </div>
 
           <section className="tourism-section" aria-labelledby="tourism-title">
             <div>
@@ -234,25 +308,6 @@ function App() {
               </div>
             </dl>
           </section>
-
-          <div className="insight-grid">
-            <section>
-              <h3>주요 예측 요인</h3>
-              <ul>
-                {selectedArea.top_factors.map((factor) => (
-                  <li key={factor}>{factor}</li>
-                ))}
-              </ul>
-            </section>
-            <section>
-              <h3>추천 실행</h3>
-              <ul>
-                {selectedArea.recommendations.map((recommendation) => (
-                  <li key={recommendation}>{recommendation}</li>
-                ))}
-              </ul>
-            </section>
-          </div>
 
           <section className="forecast-section">
             <h3>7일 수요 전망</h3>

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import make_prediction_json
 import make_mock_tourism_features
+import calculate_demand_score
 import merge_visitor_features
 import merge_weather_features
 from merge_tourism_features import (
@@ -58,6 +59,9 @@ def main() -> None:
 
     print("Reapplying weather demand-risk features after visitor merge.")
     merge_weather_features.main()
+
+    print("Calculating explainable demand scores.")
+    calculate_demand_score.main()
 
     print("Regenerating public/predictions.json from merged area features.")
     make_prediction_json.main()

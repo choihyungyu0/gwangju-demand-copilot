@@ -80,6 +80,23 @@ python scripts/merge_weather_features.py
 python scripts/make_prediction_json.py
 ```
 
+## Demand scoring logic
+
+MVP의 최종 수요예측 점수는 `data/processed/area_features_scored.csv`에 저장됩니다. 현재 공식은 설명 가능한 rule-based scoring이며, 각 점수는 0-100 범위로 정규화하거나 안전한 fallback 값을 사용합니다.
+
+- `commercial_score`: 25%
+- `tourism_component_score`: 20%
+- `visitor_component_score`: 25%
+- `event_component_score`: 10%
+- `weather_component_score`: 20%
+
+```bash
+python scripts/calculate_demand_score.py
+python scripts/make_prediction_json.py
+```
+
+이 공식은 초기 MVP용 기준선입니다. 실제 방문자·매출·날씨·행사 데이터가 충분히 쌓이면 가중치는 검증 데이터로 보정하거나 머신러닝 모델로 교체할 수 있습니다.
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction
