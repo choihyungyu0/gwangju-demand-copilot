@@ -88,10 +88,10 @@ def main() -> None:
     rows["weather_score"] = rows["weather_score"].clip(lower=0, upper=100)
 
     rows["demand_score"] = (
-        rows["visitor_score"] * 0.4
-        + rows["event_score"] * 0.2
-        + rows["tourism_score"] * 0.15
-        + rows["store_score"] * 0.15
+        rows["store_score"] * 0.3
+        + rows["tourism_score"] * 0.25
+        + rows["visitor_score"] * 0.25
+        + rows["event_score"] * 0.1
         + rows["weather_score"] * 0.1
     )
 

@@ -73,6 +73,11 @@ function App() {
   const touristSpotCount = selectedArea.tourist_spot_count ?? 0
   const eventCount = selectedArea.event_count ?? 0
   const cultureCount = selectedArea.culture_count ?? 0
+  const visitorCount = selectedArea.visitor_count_gu ?? 0
+  const visitorGrowth = selectedArea.visitor_growth ?? 0
+  const visitorScore = selectedArea.visitor_score ?? 0
+  const visitorSummary = selectedArea.visitor_summary ?? '방문 수요 정보 없음'
+  const visitorGrowthText = `${visitorGrowth > 0 ? '+' : ''}${visitorGrowth}%`
 
   return (
     <main className="app-shell">
@@ -167,6 +172,27 @@ function App() {
               <div>
                 <dt>문화시설 수</dt>
                 <dd>{cultureCount}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="visitor-section" aria-labelledby="visitor-title">
+            <div>
+              <h3 id="visitor-title">방문 수요 요약</h3>
+              <p>{visitorSummary}</p>
+            </div>
+            <dl className="visitor-metrics" aria-label="방문 수요 지표">
+              <div>
+                <dt>방문자 수</dt>
+                <dd>{visitorCount.toLocaleString('ko-KR')}</dd>
+              </div>
+              <div>
+                <dt>방문자 증가율</dt>
+                <dd>{visitorGrowthText}</dd>
+              </div>
+              <div>
+                <dt>방문 수요 점수</dt>
+                <dd>{visitorScore}</dd>
               </div>
             </dl>
           </section>

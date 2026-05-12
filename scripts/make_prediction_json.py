@@ -78,6 +78,22 @@ def risk_level(latest_rows: list[dict[str, str]], predicted_score: int) -> str:
     return "낮음"
 
 
+def weighted_demand_score(
+    commercial_score: float,
+    tourism_score: float,
+    visitor_score: float,
+    event_score: float,
+    weather_score: float,
+) -> float:
+    return (
+        commercial_score * 0.3
+        + tourism_score * 0.25
+        + visitor_score * 0.25
+        + event_score * 0.1
+        + weather_score * 0.1
+    )
+
+
 def classify_area(
     area_name: str,
     tourism_score: int,
@@ -104,22 +120,39 @@ def topic_particle(text: str) -> str:
     return "는"
 
 
-def build_top_factors(latest_rows: list[dict[str, str]]) -> list[str]:
+def build_top_factors(
+    latest_rows: list[dict[str, str]],
+    visitor_score: int,
+    visitor_growth: float,
+) -> list[str]:
     avg_visitor = mean(as_float(row, "visitor_score") for row in latest_rows)
     avg_event = mean(as_float(row, "event_score") for row in latest_rows)
     avg_tourism = mean(as_float(row, "tourism_score") for row in latest_rows)
     avg_store = mean(as_float(row, "store_score") for row in latest_rows)
     avg_weather = mean(as_float(row, "weather_score") for row in latest_rows)
 
+    factors: list[str] = []
+    if visitor_score >= 80:
+        factors.append("방문 수요 높음")
+    if visitor_growth > 0:
+        factors.append("방문자 증가 추세")
+    elif visitor_growth < 0:
+        factors.append("방문자 감소 가능성")
+
     candidates = [
-        (avg_visitor, "방문자 흐름이 수요 점수에 가장 크게 기여"),
+        (avg_visitor, "방문자 흐름이 수요 점수에 기여"),
         (avg_event, "행사·이벤트 일정이 단기 수요를 끌어올림"),
         (avg_tourism, "관광 자원 밀도가 방문 목적성을 강화"),
         (avg_store, "상가·음식·소매 밀도가 소비 전환 가능성을 높임"),
         (avg_weather, "날씨 조건이 보행과 체류 수요에 영향"),
     ]
     candidates.sort(reverse=True, key=lambda item: item[0])
-    return [label for _, label in candidates[:3]]
+    for _, label in candidates:
+        if label not in factors:
+            factors.append(label)
+        if len(factors) >= 4:
+            break
+    return factors
 
 
 def build_recommendations(
@@ -165,12 +198,18 @@ def build_summary(
     tourism_score: int,
     event_count: int,
     culture_count: int,
+    visitor_score: int,
+    visitor_growth: float,
+    visitor_summary: str,
 ) -> str:
     area_with_particle = f"{area_name}{topic_particle(area_name)}"
+    growth_text = f"{visitor_growth:+.1f}%"
     return (
         f"{area_with_particle} {area_type}입니다. 최근 7일 예측 수요는 {predicted_score}점이며 "
         f"이전 기간 평균 대비 {change_text}입니다. 관광 점수는 {tourism_score}점, "
         f"행사 영향 지표는 {event_count}건, 문화시설은 {culture_count}곳 수준입니다. "
+        f"방문 수요 점수는 {visitor_score}점이고 방문자 증가율은 {growth_text}입니다. "
+        f"{visitor_summary} "
         f"운영 리스크는 {risk} 수준으로 "
         "상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다."
     )
@@ -184,11 +223,6 @@ def make_prediction(
     latest_rows = area_rows[-7:]
     history_rows = area_rows[:-7] or area_rows
 
-    latest_avg = mean(as_float(row, "demand_score") for row in latest_rows)
-    history_avg = mean(as_float(row, "demand_score") for row in history_rows)
-    predicted_score = round(latest_avg)
-    change_text = pct_change(latest_avg, history_avg)
-    risk = risk_level(latest_rows, predicted_score)
     first = latest_rows[0]
     area_features = area_feature_map.get(first["area_id"], {})
     matched_store_count = round(
@@ -215,6 +249,18 @@ def make_prediction(
         feature_float(area_features, "culture_count", row_float(first, "culture_count"))
     )
     food_count = round(feature_float(area_features, "food_count", as_float(first, "food_count")))
+    visitor_count_gu = round(
+        feature_float(area_features, "visitor_count_gu", as_float(first, "visitor_count_gu"))
+    )
+    visitor_growth = feature_float(area_features, "visitor_growth", 0)
+    visitor_score = round(
+        feature_float(
+            area_features,
+            "visitor_score",
+            mean(as_float(row, "visitor_score") for row in latest_rows),
+        )
+    )
+    visitor_summary = area_features.get("visitor_summary") or "방문자 feature 정보 없음"
     area_type = classify_area(
         first["area_name"],
         tourism_score,
@@ -223,6 +269,31 @@ def make_prediction(
         matched_store_count,
         food_count,
     )
+    latest_scores = [
+        weighted_demand_score(
+            as_float(row, "store_score"),
+            tourism_score,
+            visitor_score,
+            as_float(row, "event_score"),
+            as_float(row, "weather_score"),
+        )
+        for row in latest_rows
+    ]
+    history_scores = [
+        weighted_demand_score(
+            as_float(row, "store_score"),
+            tourism_score,
+            visitor_score,
+            as_float(row, "event_score"),
+            as_float(row, "weather_score"),
+        )
+        for row in history_rows
+    ]
+    latest_avg = mean(latest_scores)
+    history_avg = mean(history_scores)
+    predicted_score = round(latest_avg)
+    change_text = pct_change(latest_avg, history_avg)
+    risk = risk_level(latest_rows, predicted_score)
 
     return {
         "area_id": first["area_id"],
@@ -234,6 +305,10 @@ def make_prediction(
         "tourist_spot_count": tourist_spot_count,
         "event_count": event_count,
         "culture_count": culture_count,
+        "visitor_count_gu": visitor_count_gu,
+        "visitor_growth": round(visitor_growth, 1),
+        "visitor_score": visitor_score,
+        "visitor_summary": visitor_summary,
         "area_type_summary": area_type,
         "predicted_score": predicted_score,
         "change_vs_avg": change_text,
@@ -247,14 +322,17 @@ def make_prediction(
             tourism_score,
             event_count,
             culture_count,
+            visitor_score,
+            visitor_growth,
+            visitor_summary,
         ),
-        "top_factors": build_top_factors(latest_rows),
+        "top_factors": build_top_factors(latest_rows, visitor_score, visitor_growth),
         "recommendations": build_recommendations(
             first["area_name"], latest_rows, predicted_score, risk
         ),
         "forecast": [
-            {"date": row["date"], "score": round(as_float(row, "demand_score"))}
-            for row in latest_rows
+            {"date": row["date"], "score": round(score)}
+            for row, score in zip(latest_rows, latest_scores)
         ],
     }
 

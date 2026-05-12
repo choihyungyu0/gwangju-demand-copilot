@@ -29,6 +29,10 @@ describe('buildCopilotAnswer', () => {
       tourist_spot_count: 8,
       event_count: 5,
       culture_count: 4,
+      visitor_count_gu: 172000,
+      visitor_growth: 14.5,
+      visitor_score: 92,
+      visitor_summary: '도심 쇼핑과 식음 수요가 함께 몰리는 고방문 상권',
       top_factors: ['주말 도심 쇼핑 유동인구 증가', '금남로 문화행사'],
       recommendations: ['판매 인력 보강', '테이크아웃 재고 확대'],
     }
@@ -41,6 +45,9 @@ describe('buildCopilotAnswer', () => {
     expect(answer).toContain(`관광 점수 ${area.tourism_score}점`)
     expect(answer).toContain(`행사 ${area.event_count}건`)
     expect(answer).toContain(`문화시설 ${area.culture_count}곳`)
+    expect(answer).toContain(`방문 수요 점수는 ${area.visitor_score}점`)
+    expect(answer).toContain('방문자 증가 추세')
+    expect(answer).toContain(area.visitor_summary)
     area.top_factors.forEach((factor) => {
       expect(answer).toContain(factor)
     })

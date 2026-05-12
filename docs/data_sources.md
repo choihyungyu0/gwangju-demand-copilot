@@ -33,6 +33,18 @@
 - fallback mock feature CSV: `data/processed/tourism_area_features.csv`
 - merged feature CSV: `data/processed/area_features_full.csv`
 
+## 한국관광공사 관광빅데이터 / 방문자 수 데이터
+
+- 상태: mock feature pipeline 구성 완료, 향후 실제 관광빅데이터 방문자 수로 대체 예정
+- 목적: 상권 공급량과 관광/행사 매력도만으로 설명하기 어려운 실제 방문 수요 흐름을 보완합니다.
+- 현재 output: `data/processed/visitor_area_features.csv`
+
+### Planned/Used Features
+
+- `visitor_count_gu`: 구 또는 지역 단위 방문자 규모를 나타내는 수요 흐름 지표입니다.
+- `visitor_growth`: 직전 기간 대비 방문자 증가율입니다. 양수면 방문자 증가 추세, 음수면 감소 가능성을 의미합니다.
+- `visitor_score`: 방문자 규모와 증가 추세를 0-100 범위로 환산한 MVP용 방문 수요 점수입니다.
+
 ## Integration Notes
 
 - 지역 단위 key를 먼저 표준화한 뒤 상권, 관광, 날씨 데이터를 결합합니다.

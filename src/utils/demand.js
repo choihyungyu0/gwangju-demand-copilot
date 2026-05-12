@@ -31,6 +31,17 @@ export function buildCopilotAnswer(area, question = '') {
   const touristSpotCount = area.tourist_spot_count ?? 0
   const eventCount = area.event_count ?? 0
   const cultureCount = area.culture_count ?? 0
+  const visitorCount = area.visitor_count_gu ?? 0
+  const visitorGrowth = area.visitor_growth ?? 0
+  const visitorScore = area.visitor_score ?? 0
+  const visitorSummary = area.visitor_summary ?? '방문 수요 정보 없음'
+  const visitorGrowthText = `${visitorGrowth > 0 ? '+' : ''}${visitorGrowth}%`
+  const visitorTrend =
+    visitorGrowth > 0
+      ? '방문자 증가 추세가 있어 수요 상승 가능성이 있습니다.'
+      : visitorGrowth < 0
+        ? '방문자 감소 가능성이 있어 보수적인 운영이 필요합니다.'
+        : '방문자 흐름은 안정적인 편입니다.'
   const normalizedQuestion = question.trim()
   const questionContext = normalizedQuestion
     ? `질문: ${normalizedQuestion}`
@@ -40,6 +51,8 @@ export function buildCopilotAnswer(area, question = '') {
     `${questionContext}`,
     `${area.area_name}의 예측 수요 점수는 ${area.predicted_score}점(${getScoreLabel(area.predicted_score)})입니다.`,
     `상권 유형은 ${areaType}이며 관광 점수 ${tourismScore}점, 관광지 ${touristSpotCount}곳, 행사 ${eventCount}건, 문화시설 ${cultureCount}곳입니다.`,
+    `방문 수요 점수는 ${visitorScore}점이고 방문자 수는 ${visitorCount.toLocaleString('ko-KR')}명, 증가율은 ${visitorGrowthText}입니다. ${visitorTrend}`,
+    `방문 수요 요약: ${visitorSummary}`,
     `주요 요인은 ${factors}입니다.`,
     `추천 실행은 ${recommendations}입니다.`,
     `현재는 mock 데이터 기반 답변이며 외부 AI API는 호출하지 않습니다.`,

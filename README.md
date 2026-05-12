@@ -56,6 +56,18 @@ python scripts/make_prediction_json.py
 
 `collect_tourism_data.py`는 `data/processed/areas.csv`의 `center_lat`, `center_lng`, `radius_m`을 사용해 TourAPI 위치기반 관광정보를 조회합니다. 수집 원본은 `data/raw/tourism_api_results.json`, 가공 feature는 `data/processed/tourism_area_features_real.csv`에 저장됩니다. `apply_tourism_features.py`는 real CSV가 있으면 이를 사용하고, 없으면 `data/processed/tourism_area_features.csv` mock 데이터를 사용합니다.
 
+## Visitor demand feature pipeline
+
+방문 수요 feature는 공급 측면의 상권 데이터와 유입 매력도를 나타내는 관광/행사 데이터를 보완하는 실제 수요 흐름 지표입니다. 현재는 `data/processed/visitor_area_features.csv`에 mock 방문자 수, 방문자 증가율, 방문 수요 점수, 방문 수요 요약을 생성합니다.
+
+향후에는 한국관광공사 관광빅데이터의 방문자 수 데이터를 활용해 구 단위 또는 지역 반경 기반 방문 흐름으로 교체할 계획입니다. 실제 데이터가 준비되기 전까지는 mock visitor feature를 fallback으로 사용합니다.
+
+```bash
+python scripts/make_mock_visitor_features.py
+python scripts/merge_visitor_features.py
+python scripts/make_prediction_json.py
+```
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction
