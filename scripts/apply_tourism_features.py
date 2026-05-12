@@ -5,6 +5,7 @@ from pathlib import Path
 import make_prediction_json
 import make_mock_tourism_features
 import calculate_demand_score
+import apply_model_insights
 import merge_visitor_features
 import merge_weather_features
 from merge_tourism_features import (
@@ -62,6 +63,9 @@ def main() -> None:
 
     print("Calculating explainable demand scores.")
     calculate_demand_score.main()
+
+    print("Applying model insight fields if model outputs exist.")
+    apply_model_insights.main()
 
     print("Regenerating public/predictions.json from merged area features.")
     make_prediction_json.main()

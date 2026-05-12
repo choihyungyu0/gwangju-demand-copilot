@@ -25,6 +25,10 @@ const area = {
   recommended_action_1: '기본 인력은 유지하고 점심·저녁 피크에 탄력 배치하세요.',
   recommended_action_2: '우천 안내, 실내 체류 상품, 배달 노출을 강화하세요.',
   recommended_action_3: '방문자 증가에 맞춰 인기 품목 재고를 선제적으로 확보하세요.',
+  model_mae: 2.14,
+  model_rmse: 2.92,
+  model_r2: 0.86,
+  top_model_features: 'visitor_score, tourism_score, event_count, weather_score, rain_mm',
   tourism_score: 74,
   tourist_spot_count: 8,
   event_count: 5,
@@ -70,6 +74,8 @@ describe('buildScoreExplanation', () => {
     expect(explanation).toContain('관광 74점')
     expect(explanation).toContain(area.score_reason_1)
     expect(explanation).toContain(area.risk_summary)
+    expect(explanation).toContain('RandomForestRegressor')
+    expect(explanation).toContain('visitor_score')
     expect(explanation).toContain(area.recommended_action_1)
   })
 })
@@ -84,7 +90,19 @@ describe('buildCopilotAnswer', () => {
     expect(answer).toContain('관광 74점')
     expect(answer).toContain('방문 수요는 92점')
     expect(answer).toContain('날씨 점수는 58점')
+    expect(answer).toContain('모델 기준 주요 영향 변수')
+    expect(answer).toContain('visitor_score')
     expect(answer).toContain(area.risk_summary)
     expect(answer).toContain(area.recommended_action_2)
+  })
+
+  it('works when model fields are missing', () => {
+    const { model_mae, model_rmse, model_r2, top_model_features, ...areaWithoutModel } =
+      area
+    const answer = buildCopilotAnswer(areaWithoutModel, '모델 없이도 답변돼?')
+
+    expect(answer).toContain(area.area_name)
+    expect(answer).toContain('모델 학습 결과는 아직 생성되지 않아')
+    expect(answer).toContain('최종 수요예측 점수는 78점')
   })
 })

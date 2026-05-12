@@ -394,6 +394,10 @@ def make_prediction(
         recommended_action_2,
         recommended_action_3,
     ]
+    model_mae = feature_text(area_features, "model_mae", "")
+    model_rmse = feature_text(area_features, "model_rmse", "")
+    model_r2 = feature_text(area_features, "model_r2", "")
+    top_model_features = feature_text(area_features, "top_model_features", "")
 
     score_summary = feature_text(
         area_features,
@@ -440,6 +444,10 @@ def make_prediction(
         "recommended_action_1": recommended_action_1,
         "recommended_action_2": recommended_action_2,
         "recommended_action_3": recommended_action_3,
+        "model_mae": model_mae,
+        "model_rmse": model_rmse,
+        "model_r2": model_r2,
+        "top_model_features": top_model_features,
         "change_vs_avg": change_text,
         "risk_level": risk,
         "summary": f"{score_summary} {risk_summary}",

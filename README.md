@@ -97,6 +97,21 @@ python scripts/make_prediction_json.py
 
 이 공식은 초기 MVP용 기준선입니다. 실제 방문자·매출·날씨·행사 데이터가 충분히 쌓이면 가중치는 검증 데이터로 보정하거나 머신러닝 모델로 교체할 수 있습니다.
 
+## Machine learning model pipeline
+
+머신러닝 파이프라인은 5개 지역 단일 행만으로 모델을 학습하지 않기 위해 `data/processed/daily_demand_training.csv`를 먼저 만듭니다. 현재는 2026-05-01부터 2026-06-29까지 60일 × 5개 지역의 MVP 학습 데이터를 생성합니다.
+
+`train_demand_model.py`는 scikit-learn이 설치된 환경에서 `RandomForestRegressor`를 학습하고, 테스트 기간 기준 `MAE`, `RMSE`, `R2`를 `data/processed/model_metrics.json`에 저장합니다. 변수 중요도는 `data/processed/feature_importance.csv`, 일별 예측 결과는 `data/processed/daily_model_predictions.csv`에 저장합니다.
+
+현재 모델은 MVP 수준의 scenario-based 학습 데이터로 동작합니다. 향후 실제 방문자 수, 행사, 날씨, 매출 proxy 데이터가 누적되면 모델 신뢰도와 feature importance 해석이 더 좋아집니다.
+
+```bash
+python scripts/make_daily_training_dataset.py
+python scripts/train_demand_model.py
+python scripts/apply_model_insights.py
+python scripts/make_prediction_json.py
+```
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction

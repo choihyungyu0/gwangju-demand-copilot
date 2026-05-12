@@ -111,6 +111,14 @@ function App() {
     selectedArea.recommended_action_2,
     selectedArea.recommended_action_3,
   ].filter(Boolean)
+  const modelMetricsAvailable =
+    selectedArea.model_mae !== undefined &&
+    selectedArea.model_mae !== null &&
+    selectedArea.model_mae !== ''
+  const topModelFeatures = String(selectedArea.top_model_features ?? '')
+    .split(',')
+    .map((feature) => feature.trim())
+    .filter(Boolean)
 
   return (
     <main className="app-shell">
@@ -307,6 +315,51 @@ function App() {
                 <dd>{weatherRiskLevel}</dd>
               </div>
             </dl>
+          </section>
+
+          <section className="model-section" aria-labelledby="model-title">
+            <div>
+              <h3 id="model-title">AI 모델 정보</h3>
+              <p>
+                {modelMetricsAvailable
+                  ? '일별 학습 데이터로 만든 설명 가능한 MVP 모델입니다.'
+                  : '모델 학습 결과는 아직 생성되지 않았습니다.'}
+              </p>
+            </div>
+            {modelMetricsAvailable ? (
+              <div className="model-content">
+                <dl className="model-metrics" aria-label="AI 모델 성능 지표">
+                  <div>
+                    <dt>모델 방식</dt>
+                    <dd>RandomForestRegressor</dd>
+                  </div>
+                  <div>
+                    <dt>MAE</dt>
+                    <dd>{selectedArea.model_mae}</dd>
+                  </div>
+                  <div>
+                    <dt>RMSE</dt>
+                    <dd>{selectedArea.model_rmse}</dd>
+                  </div>
+                  <div>
+                    <dt>R2</dt>
+                    <dd>{selectedArea.model_r2}</dd>
+                  </div>
+                </dl>
+                <div className="model-features">
+                  <strong>주요 영향 변수 TOP 5</strong>
+                  <ol>
+                    {topModelFeatures.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            ) : (
+              <p className="model-empty">
+                학습 스크립트 실행 후 MAE/RMSE/R2와 주요 변수가 표시됩니다.
+              </p>
+            )}
           </section>
 
           <section className="forecast-section">

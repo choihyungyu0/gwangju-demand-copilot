@@ -269,7 +269,8 @@ h3 {
 .score-section,
 .tourism-section,
 .visitor-section,
-.weather-section {
+.weather-section,
+.model-section {
   display: grid;
   grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.5fr);
   gap: 18px;
@@ -281,7 +282,8 @@ h3 {
 .score-section p,
 .tourism-section p,
 .visitor-section p,
-.weather-section p {
+.weather-section p,
+.model-section p {
   margin-top: 10px;
   color: #405047;
   font-weight: 800;
@@ -314,6 +316,10 @@ h3 {
 }
 
 .weather-section {
+  margin-top: 18px;
+}
+
+.model-section {
   margin-top: 18px;
 }
 
@@ -383,6 +389,66 @@ h3 {
 
 .subsection-title {
   margin-top: 18px;
+}
+
+.model-content {
+  display: grid;
+  gap: 14px;
+}
+
+.model-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.model-metrics div {
+  min-height: 68px;
+  border-left: 1px solid #dfe7e2;
+  padding: 4px 14px;
+}
+
+.model-metrics dt {
+  color: #596961;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.model-metrics dd {
+  margin: 12px 0 0;
+  color: #183327;
+  font-size: clamp(0.98rem, 1.4vw, 1.25rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.model-features {
+  border-top: 1px solid #e0e8e3;
+  padding-top: 14px;
+}
+
+.model-features strong {
+  color: #38473f;
+}
+
+.model-features ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.model-features li,
+.model-empty {
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f8fbf8;
+  color: #405047;
+  font-weight: 800;
 }
 
 .insight-grid {
@@ -525,6 +591,7 @@ h3 {
   .tourism-section,
   .visitor-section,
   .weather-section,
+  .model-section,
   .score-explain-grid,
   .insight-grid {
     grid-template-columns: 1fr;
@@ -534,6 +601,11 @@ h3 {
   .tourism-metrics,
   .visitor-metrics,
   .weather-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .model-metrics,
+  .model-features ol {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

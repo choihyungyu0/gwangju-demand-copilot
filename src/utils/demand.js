@@ -49,6 +49,17 @@ function recommendedActions(area) {
   ].filter(Boolean)
 }
 
+function modelFeatures(area) {
+  return String(area.top_model_features ?? '')
+    .split(',')
+    .map((feature) => feature.trim())
+    .filter(Boolean)
+}
+
+function hasModelMetrics(area) {
+  return area.model_mae !== undefined && area.model_mae !== null && area.model_mae !== ''
+}
+
 export function buildScoreExplanation(area) {
   if (!area) {
     return '선택된 지역 데이터가 없습니다.'
@@ -60,6 +71,9 @@ export function buildScoreExplanation(area) {
   const actions = recommendedActions(area)
   const strongestReason = reasons[0] ?? '상권, 방문, 관광, 날씨 요인을 함께 반영했습니다.'
   const actionText = actions.length > 0 ? toTextList(actions) : '기본 운영을 유지하세요.'
+  const modelText = hasModelMetrics(area)
+    ? `AI 모델은 RandomForestRegressor이며 MAE ${area.model_mae}, RMSE ${area.model_rmse}, R2 ${area.model_r2}입니다. 주요 영향 변수는 ${toTextList(modelFeatures(area))}입니다.`
+    : 'AI 모델 학습 결과는 아직 생성되지 않았습니다.'
 
   return [
     area.score_summary ??
@@ -67,6 +81,7 @@ export function buildScoreExplanation(area) {
     `점수 구성은 상권 ${numberValue(area.commercial_score)}점, 관광 ${numberValue(area.tourism_component_score)}점, 방문 수요 ${numberValue(area.visitor_component_score)}점, 행사 영향 ${numberValue(area.event_component_score)}점, 날씨 ${numberValue(area.weather_component_score)}점입니다.`,
     `가장 큰 근거는 "${strongestReason}" 입니다.`,
     `리스크 요약: ${area.risk_summary ?? '특이 리스크 정보가 없습니다.'}`,
+    modelText,
     `추천 행동: ${actionText}`,
   ].join('\n')
 }
@@ -80,6 +95,10 @@ export function buildCopilotAnswer(area, question = '') {
   const reasons = scoreReasons(area)
   const actions = recommendedActions(area)
   const actionText = actions.length > 0 ? toTextList(actions) : '기본 운영을 유지하세요'
+  const topFeatures = modelFeatures(area)
+  const modelInsight = hasModelMetrics(area)
+    ? `모델 기준 주요 영향 변수는 ${toTextList(topFeatures)}입니다.`
+    : '모델 학습 결과는 아직 생성되지 않아 rule-based MVP 점수를 중심으로 설명합니다.'
   const strongestReason = reasons[0] ?? '복합 수요 요인이 반영되었습니다.'
   const tourismScore = numberValue(area.tourism_component_score, area.tourism_score ?? 0)
   const visitorScore = numberValue(area.visitor_component_score, area.visitor_score ?? 0)
@@ -104,6 +123,7 @@ export function buildCopilotAnswer(area, question = '') {
     `가장 강한 근거는 ${strongestReason}`,
     `관광/행사 영향은 관광 ${tourismScore}점, 행사 ${eventScore}점으로 반영됐고 방문 수요는 ${visitorScore}점, 방문자 증가율은 ${visitorGrowthText}입니다.`,
     `날씨 점수는 ${weatherScore}점이며 리스크는 ${weatherRiskLevel}입니다. ${weatherImpact}`,
+    `${modelInsight}`,
     `리스크 요약: ${area.risk_summary ?? '특이 리스크 정보가 없습니다.'}`,
     `추천 행동은 ${actionText}입니다.`,
     '현재는 MVP scoring formula와 mock/공공데이터 feature 기반 답변이며 외부 AI API는 호출하지 않습니다.',
