@@ -81,7 +81,7 @@ function App() {
           <p className="eyebrow">Public Data AI Competition MVP</p>
           <h1>광주 상권·관광 수요예측 코파일럿</h1>
           <p className="subtitle">
-            공공데이퀰와 AI 기반 수요예측을 가정한 광주 상권·관광 운영 의사결정
+            공공데이터와 AI 기반 수요예측을 가정한 광주 상권·관광 운영 의사결정
             프로토타입입니다.
           </p>
         </div>
