@@ -37,11 +37,27 @@ def main() -> None:
         print("Tourism features are unavailable. Output will contain store fields only.")
         merged = store_features.copy()
     else:
+        tourism_merge_columns = [
+            column
+            for column in [
+                "area_id",
+                "area_name",
+                "tourist_spot_count",
+                "event_count",
+                "culture_count",
+                "tourism_score",
+            ]
+            if column in tourism_features.columns
+        ]
         merged = store_features.merge(
-            tourism_features,
-            on=["area_id", "area_name"],
+            tourism_features[tourism_merge_columns],
+            on="area_id",
             how="left",
+            suffixes=("", "_tourism"),
         )
+        if "area_name_tourism" in merged.columns:
+            merged["area_name"] = merged["area_name"].fillna(merged["area_name_tourism"])
+            merged = merged.drop(columns=["area_name_tourism"])
 
     numeric_defaults = {
         "matched_store_count": 0,
@@ -80,6 +96,7 @@ def main() -> None:
     ]
 
     merged = merged[output_columns]
+    merged = merged.sort_values("area_id").reset_index(drop=True)
     save_csv_safe(merged, OUTPUT_PATH)
 
     print("Merged feature summary:")

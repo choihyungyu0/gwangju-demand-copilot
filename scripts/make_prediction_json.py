@@ -34,6 +34,16 @@ def as_float(row: dict[str, str], column: str) -> float:
     return float(row[column])
 
 
+def row_float(row: dict[str, str], column: str, fallback: float = 0) -> float:
+    value = row.get(column)
+    if value in (None, ""):
+        return fallback
+    try:
+        return float(value)
+    except ValueError:
+        return fallback
+
+
 def feature_float(
     feature_row: dict[str, str],
     column: str,
@@ -154,12 +164,14 @@ def build_summary(
     area_type: str,
     tourism_score: int,
     event_count: int,
+    culture_count: int,
 ) -> str:
     area_with_particle = f"{area_name}{topic_particle(area_name)}"
     return (
         f"{area_with_particle} {area_type}입니다. 최근 7일 예측 수요는 {predicted_score}점이며 "
         f"이전 기간 평균 대비 {change_text}입니다. 관광 점수는 {tourism_score}점, "
-        f"행사 영향 지표는 {event_count}건 수준입니다. 운영 리스크는 {risk} 수준으로 "
+        f"행사 영향 지표는 {event_count}건, 문화시설은 {culture_count}곳 수준입니다. "
+        f"운영 리스크는 {risk} 수준으로 "
         "상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다."
     )
 
@@ -199,6 +211,9 @@ def make_prediction(
             mean(as_float(row, "event_count") for row in latest_rows),
         )
     )
+    culture_count = round(
+        feature_float(area_features, "culture_count", row_float(first, "culture_count"))
+    )
     food_count = round(feature_float(area_features, "food_count", as_float(first, "food_count")))
     area_type = classify_area(
         first["area_name"],
@@ -218,6 +233,8 @@ def make_prediction(
         "tourism_score": tourism_score,
         "tourist_spot_count": tourist_spot_count,
         "event_count": event_count,
+        "culture_count": culture_count,
+        "area_type_summary": area_type,
         "predicted_score": predicted_score,
         "change_vs_avg": change_text,
         "risk_level": risk,
@@ -229,6 +246,7 @@ def make_prediction(
             area_type,
             tourism_score,
             event_count,
+            culture_count,
         ),
         "top_factors": build_top_factors(latest_rows),
         "recommendations": build_recommendations(

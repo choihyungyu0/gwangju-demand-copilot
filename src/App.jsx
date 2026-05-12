@@ -68,6 +68,12 @@ function App() {
     )
   }
 
+  const areaTypeSummary = selectedArea.area_type_summary ?? '상권 유형 정보 없음'
+  const tourismScore = selectedArea.tourism_score ?? 0
+  const touristSpotCount = selectedArea.tourist_spot_count ?? 0
+  const eventCount = selectedArea.event_count ?? 0
+  const cultureCount = selectedArea.culture_count ?? 0
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -75,7 +81,7 @@ function App() {
           <p className="eyebrow">Public Data AI Competition MVP</p>
           <h1>광주 상권·관광 수요예측 코파일럿</h1>
           <p className="subtitle">
-            공공데이터와 AI 기반 수요예측을 가정한 광주 상권·관광 운영 의사결정
+            공공데이퀰와 AI 기반 수요예측을 가정한 광주 상권·관광 운영 의사결정
             프로토타입입니다.
           </p>
         </div>
@@ -139,6 +145,31 @@ function App() {
           </div>
 
           <p className="summary">{selectedArea.summary}</p>
+
+          <section className="tourism-section" aria-labelledby="tourism-title">
+            <div>
+              <h3 id="tourism-title">상권 유형 요약</h3>
+              <p>{areaTypeSummary}</p>
+            </div>
+            <dl className="tourism-metrics" aria-label="관광 및 이벤트 지표">
+              <div>
+                <dt>관광 점수</dt>
+                <dd>{tourismScore}</dd>
+              </div>
+              <div>
+                <dt>관광지 수</dt>
+                <dd>{touristSpotCount}</dd>
+              </div>
+              <div>
+                <dt>행사 수</dt>
+                <dd>{eventCount}</dd>
+              </div>
+              <div>
+                <dt>문화시설 수</dt>
+                <dd>{cultureCount}</dd>
+              </div>
+            </dl>
+          </section>
 
           <div className="insight-grid">
             <section>

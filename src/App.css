@@ -266,6 +266,49 @@ h3 {
   line-height: 1.6;
 }
 
+.tourism-section {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.5fr);
+  gap: 18px;
+  margin-top: 22px;
+  border-top: 1px solid #e0e8e3;
+  padding-top: 18px;
+}
+
+.tourism-section p {
+  margin-top: 10px;
+  color: #405047;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.tourism-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.tourism-metrics div {
+  min-height: 72px;
+  border-left: 1px solid #dfe7e2;
+  padding: 4px 14px;
+}
+
+.tourism-metrics dt {
+  color: #596961;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.tourism-metrics dd {
+  margin: 12px 0 0;
+  color: #183327;
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .insight-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -402,8 +445,13 @@ h3 {
 
   .dashboard-grid,
   .metric-row,
+  .tourism-section,
   .insight-grid {
     grid-template-columns: 1fr;
+  }
+
+  .tourism-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .detail-card {
