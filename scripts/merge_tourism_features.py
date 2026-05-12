@@ -11,6 +11,39 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 STORE_FEATURES_PATH = ROOT_DIR / "data" / "processed" / "store_features_radius.csv"
 TOURISM_FEATURES_PATH = ROOT_DIR / "data" / "processed" / "tourism_area_features.csv"
 OUTPUT_PATH = ROOT_DIR / "data" / "processed" / "area_features_full.csv"
+TOURISM_MERGE_COLUMNS = [
+    "area_id",
+    "area_name",
+    "tourist_spot_count",
+    "event_count",
+    "culture_count",
+    "tourism_score",
+]
+NUMERIC_DEFAULTS = {
+    "matched_store_count": 0,
+    "food_count": 0,
+    "cafe_count": 0,
+    "retail_count": 0,
+    "accommodation_count": 0,
+    "tourist_spot_count": 0,
+    "event_count": 0,
+    "culture_count": 0,
+    "tourism_score": 0,
+}
+OUTPUT_COLUMNS = [
+    "area_id",
+    "area_name",
+    "district",
+    "matched_store_count",
+    "food_count",
+    "cafe_count",
+    "retail_count",
+    "accommodation_count",
+    "tourist_spot_count",
+    "event_count",
+    "culture_count",
+    "tourism_score",
+]
 
 
 def read_csv_or_empty(path: Path) -> pd.DataFrame:
@@ -21,11 +54,10 @@ def read_csv_or_empty(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, encoding="utf-8-sig")
 
 
-def main() -> None:
-    print("Merging radius store features with tourism/event features.")
-    store_features = read_csv_or_empty(STORE_FEATURES_PATH)
-    tourism_features = read_csv_or_empty(TOURISM_FEATURES_PATH)
-
+def merge_store_and_tourism_features(
+    store_features: pd.DataFrame,
+    tourism_features: pd.DataFrame,
+) -> pd.DataFrame:
     if store_features.empty and tourism_features.empty:
         raise FileNotFoundError(
             "No store or tourism feature CSVs were available to merge."
@@ -39,14 +71,7 @@ def main() -> None:
     else:
         tourism_merge_columns = [
             column
-            for column in [
-                "area_id",
-                "area_name",
-                "tourist_spot_count",
-                "event_count",
-                "culture_count",
-                "tourism_score",
-            ]
+            for column in TOURISM_MERGE_COLUMNS
             if column in tourism_features.columns
         ]
         merged = store_features.merge(
@@ -59,18 +84,7 @@ def main() -> None:
             merged["area_name"] = merged["area_name"].fillna(merged["area_name_tourism"])
             merged = merged.drop(columns=["area_name_tourism"])
 
-    numeric_defaults = {
-        "matched_store_count": 0,
-        "food_count": 0,
-        "cafe_count": 0,
-        "retail_count": 0,
-        "accommodation_count": 0,
-        "tourist_spot_count": 0,
-        "event_count": 0,
-        "culture_count": 0,
-        "tourism_score": 0,
-    }
-    for column, default_value in numeric_defaults.items():
+    for column, default_value in NUMERIC_DEFAULTS.items():
         if column not in merged.columns:
             merged[column] = default_value
         merged[column] = pd.to_numeric(merged[column], errors="coerce").fillna(default_value)
@@ -78,29 +92,32 @@ def main() -> None:
 
     output_columns = [
         column
-        for column in [
-            "area_id",
-            "area_name",
-            "district",
-            "matched_store_count",
-            "food_count",
-            "cafe_count",
-            "retail_count",
-            "accommodation_count",
-            "tourist_spot_count",
-            "event_count",
-            "culture_count",
-            "tourism_score",
-        ]
+        for column in OUTPUT_COLUMNS
         if column in merged.columns
     ]
 
     merged = merged[output_columns]
-    merged = merged.sort_values("area_id").reset_index(drop=True)
-    save_csv_safe(merged, OUTPUT_PATH)
+    return merged.sort_values("area_id").reset_index(drop=True)
+
+
+def merge_feature_files(
+    store_features_path: Path = STORE_FEATURES_PATH,
+    tourism_features_path: Path = TOURISM_FEATURES_PATH,
+    output_path: Path = OUTPUT_PATH,
+) -> pd.DataFrame:
+    print("Merging radius store features with tourism/event features.")
+    store_features = read_csv_or_empty(store_features_path)
+    tourism_features = read_csv_or_empty(tourism_features_path)
+    merged = merge_store_and_tourism_features(store_features, tourism_features)
+    save_csv_safe(merged, output_path)
 
     print("Merged feature summary:")
     print(merged.to_string(index=False))
+    return merged
+
+
+def main() -> None:
+    merge_feature_files()
 
 
 if __name__ == "__main__":

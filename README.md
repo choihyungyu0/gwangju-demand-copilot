@@ -35,6 +35,27 @@ python scripts/make_score.py
 python scripts/make_prediction_json.py
 ```
 
+## Real tourism data integration
+
+한국관광공사 국문 관광정보 서비스 / TourAPI를 사용해 실제 관광지, 행사, 문화시설 지표를 만들 수 있습니다. API 키가 없어도 Vercel build와 React MVP는 그대로 동작하며, `TOUR_API_SERVICE_KEY`가 없으면 기존 mock 관광 데이터가 fallback으로 사용됩니다.
+
+1. 공공데이터포털에서 `한국관광공사_국문 관광정보 서비스_GW` 활용신청을 합니다.
+2. 발급받은 서비스 키를 로컬 `.env` 파일에 저장합니다.
+
+```bash
+TOUR_API_SERVICE_KEY=your_tour_api_key_here
+```
+
+3. 실제 관광 데이터를 수집하고, 상권 feature에 적용한 뒤 예측 JSON을 다시 만듭니다.
+
+```bash
+python scripts/collect_tourism_data.py
+python scripts/apply_tourism_features.py
+python scripts/make_prediction_json.py
+```
+
+`collect_tourism_data.py`는 `data/processed/areas.csv`의 `center_lat`, `center_lng`, `radius_m`을 사용해 TourAPI 위치기반 관광정보를 조회합니다. 수집 원본은 `data/raw/tourism_api_results.json`, 가공 feature는 `data/processed/tourism_area_features_real.csv`에 저장됩니다. `apply_tourism_features.py`는 real CSV가 있으면 이를 사용하고, 없으면 `data/processed/tourism_area_features.csv` mock 데이터를 사용합니다.
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction
