@@ -68,6 +68,18 @@ python scripts/merge_visitor_features.py
 python scripts/make_prediction_json.py
 ```
 
+## Weather feature pipeline
+
+날씨 feature는 상권 공급, 관광/행사 매력도, 방문 수요 흐름에 더해 외부 수요 리스크를 반영합니다. 현재는 `data/processed/weather_area_features.csv`에 mock 기온, 강수량, 비 여부, 날씨 점수, 날씨 리스크, 날씨 요약을 생성합니다.
+
+향후에는 기상청 단기예보 조회서비스의 실제 예보 데이터를 사용해 지역별 강수와 기온 영향을 교체할 계획입니다. 실제 API 키나 실시간 예보가 준비되기 전까지는 mock weather feature를 fallback으로 사용하며, npm build와 Vercel 배포는 Python이나 API 키를 요구하지 않습니다.
+
+```bash
+python scripts/make_mock_weather_features.py
+python scripts/merge_weather_features.py
+python scripts/make_prediction_json.py
+```
+
 ## Current MVP Scope
 
 - 광주 5개 상권·관광 지역 mock demand prediction

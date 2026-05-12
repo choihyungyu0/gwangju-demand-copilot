@@ -5,6 +5,7 @@ from pathlib import Path
 import make_prediction_json
 import make_mock_tourism_features
 import merge_visitor_features
+import merge_weather_features
 from merge_tourism_features import (
     OUTPUT_PATH,
     STORE_FEATURES_PATH,
@@ -54,6 +55,9 @@ def main() -> None:
 
     print("Reapplying visitor demand features after tourism merge.")
     merge_visitor_features.main()
+
+    print("Reapplying weather demand-risk features after visitor merge.")
+    merge_weather_features.main()
 
     print("Regenerating public/predictions.json from merged area features.")
     make_prediction_json.main()

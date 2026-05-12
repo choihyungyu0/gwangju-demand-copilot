@@ -266,7 +266,9 @@ h3 {
   line-height: 1.6;
 }
 
-.tourism-section {
+.tourism-section,
+.visitor-section,
+.weather-section {
   display: grid;
   grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.5fr);
   gap: 18px;
@@ -276,7 +278,8 @@ h3 {
 }
 
 .tourism-section p,
-.visitor-section p {
+.visitor-section p,
+.weather-section p {
   margin-top: 10px;
   color: #405047;
   font-weight: 800;
@@ -284,7 +287,8 @@ h3 {
 }
 
 .tourism-metrics,
-.visitor-metrics {
+.visitor-metrics,
+.weather-metrics {
   display: grid;
   gap: 10px;
   margin: 0;
@@ -295,39 +299,49 @@ h3 {
 }
 
 .visitor-section {
-  display: grid;
-  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.5fr);
-  gap: 18px;
   margin-top: 18px;
-  border-top: 1px solid #e0e8e3;
-  padding-top: 18px;
 }
 
 .visitor-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.weather-section {
+  margin-top: 18px;
+}
+
+.weather-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .tourism-metrics div,
-.visitor-metrics div {
+.visitor-metrics div,
+.weather-metrics div {
   min-height: 72px;
   border-left: 1px solid #dfe7e2;
   padding: 4px 14px;
 }
 
 .tourism-metrics dt,
-.visitor-metrics dt {
+.visitor-metrics dt,
+.weather-metrics dt {
   color: #596961;
   font-size: 0.82rem;
   font-weight: 800;
 }
 
 .tourism-metrics dd,
-.visitor-metrics dd {
+.visitor-metrics dd,
+.weather-metrics dd {
   margin: 12px 0 0;
   color: #183327;
   font-size: clamp(1.25rem, 2vw, 1.8rem);
   font-weight: 900;
   line-height: 1;
+}
+
+.weather-metrics dd {
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
 }
 
 .insight-grid {
@@ -468,12 +482,14 @@ h3 {
   .metric-row,
   .tourism-section,
   .visitor-section,
+  .weather-section,
   .insight-grid {
     grid-template-columns: 1fr;
   }
 
   .tourism-metrics,
-  .visitor-metrics {
+  .visitor-metrics,
+  .weather-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

@@ -1,1 +1,338 @@
-[{"area_id":"A001","area_name":"충장로 / 금남로","district":"동구","matched_store_count":4203,"area_radius_m":800,"tourism_score":74,"tourist_spot_count":8,"event_count":5,"culture_count":4,"visitor_count_gu":172000,"visitor_growth":14.5,"visitor_score":92,"visitor_summary":"도심 쇼핑과 식음 수요가 함께 몰리는 고방문 상권","area_type_summary":"상업·관광 혼합 상권","predicted_score":81,"change_vs_avg":"+0%","risk_level":"중간","summary":"충장로 / 금남로는 상업·관광 혼합 상권입니다. 최근 7일 예측 수요는 81점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 74점, 행사 영향 지표는 5건, 문화시설은 4곳 수준입니다. 방문 수요 점수는 92점이고 방문자 증가율은 +14.5%입니다. 도심 쇼핑과 식음 수요가 함께 몰리는 고방문 상권 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.","top_factors":["방문 수요 높음","방문자 증가 추세","상가·음식·소매 밀도가 소비 전환 가능성을 높임","방문자 흐름이 수요 점수에 기여"],"recommendations":["피크 시간대 판매·응대 인력을 보강","식음 인기 품목 재고를 선제적으로 확대","우천 가능일에는 배달·실내 체류 상품 노출을 강화"],"forecast":[{"date":"2026-05-24","score":84},{"date":"2026-05-25","score":81},{"date":"2026-05-26","score":81},{"date":"2026-05-27","score":78},{"date":"2026-05-28","score":81},{"date":"2026-05-29","score":80},{"date":"2026-05-30","score":83}]},{"area_id":"A002","area_name":"양림동 역사문화마을","district":"남구","matched_store_count":905,"area_radius_m":700,"tourism_score":86,"tourist_spot_count":16,"event_count":3,"culture_count":9,"visitor_count_gu":98000,"visitor_growth":11,"visitor_score":78,"visitor_summary":"역사문화 골목 방문과 카페 체류가 꾸준한 관광형 수요","area_type_summary":"관광형 카페 상권","predicted_score":49,"change_vs_avg":"+0%","risk_level":"높음","summary":"양림동 역사문화마을은 관광형 카페 상권입니다. 최근 7일 예측 수요는 49점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 86점, 행사 영향 지표는 3건, 문화시설은 9곳 수준입니다. 방문 수요 점수는 78점이고 방문자 증가율은 +11.0%입니다. 역사문화 골목 방문과 카페 체류가 꾸준한 관광형 수요 운영 리스크는 높음 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.","top_factors":["방문자 증가 추세","관광 자원 밀도가 방문 목적성을 강화","날씨 조건이 보행과 체류 수요에 영향","방문자 흐름이 수요 점수에 기여"],"recommendations":["고정 인력은 유지하고 시간대별 탄력 배치를 준비","소량 재고와 빠른 회전 상품 중심으로 운영","우천 가능일에는 배달·실내 체류 상품 노출을 강화","예약 취소와 우천 변수에 대비해 당일 발주를 보수적으로 조정"],"forecast":[{"date":"2026-05-24","score":52},{"date":"2026-05-25","score":49},{"date":"2026-05-26","score":46},{"date":"2026-05-27","score":49},{"date":"2026-05-28","score":49},{"date":"2026-05-29","score":48},{"date":"2026-05-30","score":51}]},{"area_id":"A003","area_name":"국립아시아문화전당 주변","district":"동구","matched_store_count":3417,"area_radius_m":700,"tourism_score":93,"tourist_spot_count":13,"event_count":11,"culture_count":12,"visitor_count_gu":158000,"visitor_growth":20.5,"visitor_score":95,"visitor_summary":"문화행사와 전시 관람 흐름이 강한 핵심 방문 수요","area_type_summary":"문화·행사 영향이 큰 상권","predicted_score":82,"change_vs_avg":"-1%","risk_level":"중간","summary":"국립아시아문화전당 주변은 문화·행사 영향이 큰 상권입니다. 최근 7일 예측 수요는 82점이며 이전 기간 평균 대비 -1%입니다. 관광 점수는 93점, 행사 영향 지표는 11건, 문화시설은 12곳 수준입니다. 방문 수요 점수는 95점이고 방문자 증가율은 +20.5%입니다. 문화행사와 전시 관람 흐름이 강한 핵심 방문 수요 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.","top_factors":["방문 수요 높음","방문자 증가 추세","관광 자원 밀도가 방문 목적성을 강화","상가·음식·소매 밀도가 소비 전환 가능성을 높임"],"recommendations":["피크 시간대 판매·응대 인력을 보강","식음 인기 품목 재고를 선제적으로 확대","행사 전후 2시간 프로모션과 안내 문구를 준비"],"forecast":[{"date":"2026-05-24","score":84},{"date":"2026-05-25","score":78},{"date":"2026-05-26","score":81},{"date":"2026-05-27","score":84},{"date":"2026-05-28","score":84},{"date":"2026-05-29","score":81},{"date":"2026-05-30","score":83}]},{"area_id":"A004","area_name":"1913 송정역시장 / 광주송정역","district":"광산구","matched_store_count":1002,"area_radius_m":600,"tourism_score":78,"tourist_spot_count":10,"event_count":4,"culture_count":5,"visitor_count_gu":122000,"visitor_growth":8,"visitor_score":84,"visitor_summary":"철도역과 전통시장 유입이 결합된 외부 방문 수요","area_type_summary":"전통시장 기반 관광 상권","predicted_score":52,"change_vs_avg":"+0%","risk_level":"높음","summary":"1913 송정역시장 / 광주송정역은 전통시장 기반 관광 상권입니다. 최근 7일 예측 수요는 52점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 78점, 행사 영향 지표는 4건, 문화시설은 5곳 수준입니다. 방문 수요 점수는 84점이고 방문자 증가율은 +8.0%입니다. 철도역과 전통시장 유입이 결합된 외부 방문 수요 운영 리스크는 높음 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.","top_factors":["방문 수요 높음","방문자 증가 추세","날씨 조건이 보행과 체류 수요에 영향","방문자 흐름이 수요 점수에 기여"],"recommendations":["고정 인력은 유지하고 시간대별 탄력 배치를 준비","식음 인기 품목 재고를 선제적으로 확대","우천 가능일에는 배달·실내 체류 상품 노출을 강화","예약 취소와 우천 변수에 대비해 당일 발주를 보수적으로 조정"],"forecast":[{"date":"2026-05-24","score":53},{"date":"2026-05-25","score":52},{"date":"2026-05-26","score":52},{"date":"2026-05-27","score":51},{"date":"2026-05-28","score":51},{"date":"2026-05-29","score":51},{"date":"2026-05-30","score":55}]},{"area_id":"A005","area_name":"상무지구","district":"서구","matched_store_count":3358,"area_radius_m":900,"tourism_score":45,"tourist_spot_count":4,"event_count":2,"culture_count":2,"visitor_count_gu":135000,"visitor_growth":3.2,"visitor_score":76,"visitor_summary":"업무지구와 야간 소비가 안정적으로 이어지는 방문 수요","area_type_summary":"직장인 중심 야간 상권","predicted_score":59,"change_vs_avg":"+1%","risk_level":"중간","summary":"상무지구는 직장인 중심 야간 상권입니다. 최근 7일 예측 수요는 59점이며 이전 기간 평균 대비 +1%입니다. 관광 점수는 45점, 행사 영향 지표는 2건, 문화시설은 2곳 수준입니다. 방문 수요 점수는 76점이고 방문자 증가율은 +3.2%입니다. 업무지구와 야간 소비가 안정적으로 이어지는 방문 수요 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.","top_factors":["방문자 증가 추세","날씨 조건이 보행과 체류 수요에 영향","상가·음식·소매 밀도가 소비 전환 가능성을 높임","방문자 흐름이 수요 점수에 기여"],"recommendations":["고정 인력은 유지하고 시간대별 탄력 배치를 준비","식음 인기 품목 재고를 선제적으로 확대","상무지구 방문객 대상 현장 쿠폰을 운영"],"forecast":[{"date":"2026-05-24","score":61},{"date":"2026-05-25","score":59},{"date":"2026-05-26","score":58},{"date":"2026-05-27","score":58},{"date":"2026-05-28","score":59},{"date":"2026-05-29","score":59},{"date":"2026-05-30","score":60}]}]
+[
+    {
+        "area_id":  "A001",
+        "area_name":  "충장로 / 금남로",
+        "district":  "동구",
+        "matched_store_count":  4203,
+        "area_radius_m":  800,
+        "tourism_score":  74,
+        "tourist_spot_count":  8,
+        "event_count":  5,
+        "culture_count":  4,
+        "visitor_count_gu":  172000,
+        "visitor_growth":  14.5,
+        "visitor_score":  92,
+        "visitor_summary":  "도심 쇼핑과 식음 수요가 함께 몰리는 고방문 상권",
+        "temp":  24,
+        "rain_mm":  12.5,
+        "rain_flag":  1,
+        "weather_score":  58,
+        "weather_risk_level":  "중간",
+        "weather_summary":  "보행 쇼핑 수요가 비에 민감해 우산 동선과 실내 유입 안내가 필요",
+        "area_type_summary":  "상업·관광 혼합 상권",
+        "predicted_score":  77,
+        "change_vs_avg":  "+0%",
+        "risk_level":  "중간",
+        "summary":  "충장로 / 금남로는 상업·관광 혼합 상권입니다. 최근 7일 예측 수요는 77점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 74점, 행사 영향 지표는 5건, 문화시설은 4곳 수준입니다. 방문 수요 점수는 92점이고 방문자 증가율은 +14.5%입니다. 도심 쇼핑과 식음 수요가 함께 몰리는 고방문 상권. 날씨는 24.0도, 강수량 12.5mm, 비 여부는 있음이고 날씨 점수는 58점입니다. 날씨 리스크는 중간 수준입니다. 보행 쇼핑 수요가 비에 민감해 우산 동선과 실내 유입 안내가 필요. 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.",
+        "top_factors":  [
+                            "방문 수요 높음",
+                            "방문자 증가 추세",
+                            "강수로 인한 야외 수요 감소 가능성",
+                            "상가·음식·소매 밀도가 소비 전환 가능성을 높임"
+                        ],
+        "recommendations":  [
+                                "고정 인력은 유지하고 시간대별 탄력 배치를 준비",
+                                "식음 인기 품목 재고를 선제적으로 확대",
+                                "우천 가능일에는 배달·실내 체류 상품 노출을 강화"
+                            ],
+        "forecast":  [
+                         {
+                             "date":  "2026-05-24",
+                             "score":  79
+                         },
+                         {
+                             "date":  "2026-05-25",
+                             "score":  76
+                         },
+                         {
+                             "date":  "2026-05-26",
+                             "score":  76
+                         },
+                         {
+                             "date":  "2026-05-27",
+                             "score":  76
+                         },
+                         {
+                             "date":  "2026-05-28",
+                             "score":  76
+                         },
+                         {
+                             "date":  "2026-05-29",
+                             "score":  76
+                         },
+                         {
+                             "date":  "2026-05-30",
+                             "score":  79
+                         }
+                     ]
+    },
+    {
+        "area_id":  "A002",
+        "area_name":  "양림동 역사문화마을",
+        "district":  "남구",
+        "matched_store_count":  905,
+        "area_radius_m":  700,
+        "tourism_score":  86,
+        "tourist_spot_count":  16,
+        "event_count":  3,
+        "culture_count":  9,
+        "visitor_count_gu":  98000,
+        "visitor_growth":  11,
+        "visitor_score":  78,
+        "visitor_summary":  "역사문화 골목 방문과 카페 체류가 꾸준한 관광형 수요",
+        "temp":  23,
+        "rain_mm":  18,
+        "rain_flag":  1,
+        "weather_score":  52,
+        "weather_risk_level":  "높음",
+        "weather_summary":  "골목 관광과 도보 이동 비중이 높아 강수 시 체류 전환이 필요",
+        "area_type_summary":  "관광형 카페 상권",
+        "predicted_score":  48,
+        "change_vs_avg":  "+0%",
+        "risk_level":  "높음",
+        "summary":  "양림동 역사문화마을은 관광형 카페 상권입니다. 최근 7일 예측 수요는 48점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 86점, 행사 영향 지표는 3건, 문화시설은 9곳 수준입니다. 방문 수요 점수는 78점이고 방문자 증가율은 +11.0%입니다. 역사문화 골목 방문과 카페 체류가 꾸준한 관광형 수요. 날씨는 23.0도, 강수량 18.0mm, 비 여부는 있음이고 날씨 점수는 52점입니다. 날씨 리스크는 높음 수준입니다. 골목 관광과 도보 이동 비중이 높아 강수 시 체류 전환이 필요. 운영 리스크는 높음 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.",
+        "top_factors":  [
+                            "방문자 증가 추세",
+                            "날씨 리스크 높음",
+                            "강수로 인한 야외 수요 감소 가능성",
+                            "관광 자원 밀도가 방문 목적성을 강화"
+                        ],
+        "recommendations":  [
+                                "고정 인력은 유지하고 시간대별 탄력 배치를 준비",
+                                "소량 재고와 빠른 회전 상품 중심으로 운영",
+                                "우천 가능일에는 배달·실내 체류 상품 노출을 강화",
+                                "예약 취소와 우천 변수에 대비해 당일 발주를 보수적으로 조정"
+                            ],
+        "forecast":  [
+                         {
+                             "date":  "2026-05-24",
+                             "score":  50
+                         },
+                         {
+                             "date":  "2026-05-25",
+                             "score":  47
+                         },
+                         {
+                             "date":  "2026-05-26",
+                             "score":  47
+                         },
+                         {
+                             "date":  "2026-05-27",
+                             "score":  47
+                         },
+                         {
+                             "date":  "2026-05-28",
+                             "score":  47
+                         },
+                         {
+                             "date":  "2026-05-29",
+                             "score":  47
+                         },
+                         {
+                             "date":  "2026-05-30",
+                             "score":  50
+                         }
+                     ]
+    },
+    {
+        "area_id":  "A003",
+        "area_name":  "국립아시아문화전당 주변",
+        "district":  "동구",
+        "matched_store_count":  3417,
+        "area_radius_m":  700,
+        "tourism_score":  93,
+        "tourist_spot_count":  13,
+        "event_count":  11,
+        "culture_count":  12,
+        "visitor_count_gu":  158000,
+        "visitor_growth":  20.5,
+        "visitor_score":  95,
+        "visitor_summary":  "문화행사와 전시 관람 흐름이 강한 핵심 방문 수요",
+        "temp":  25,
+        "rain_mm":  4,
+        "rain_flag":  1,
+        "weather_score":  72,
+        "weather_risk_level":  "중간",
+        "weather_summary":  "소나기 가능성은 있으나 실내 문화시설 유입으로 일부 완충 가능",
+        "area_type_summary":  "문화·행사 영향이 큰 상권",
+        "predicted_score":  81,
+        "change_vs_avg":  "-1%",
+        "risk_level":  "중간",
+        "summary":  "국립아시아문화전당 주변은 문화·행사 영향이 큰 상권입니다. 최근 7일 예측 수요는 81점이며 이전 기간 평균 대비 -1%입니다. 관광 점수는 93점, 행사 영향 지표는 11건, 문화시설은 12곳 수준입니다. 방문 수요 점수는 95점이고 방문자 증가율은 +20.5%입니다. 문화행사와 전시 관람 흐름이 강한 핵심 방문 수요. 날씨는 25.0도, 강수량 4.0mm, 비 여부는 있음이고 날씨 점수는 72점입니다. 날씨 리스크는 중간 수준입니다. 소나기 가능성은 있으나 실내 문화시설 유입으로 일부 완충 가능. 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.",
+        "top_factors":  [
+                            "방문 수요 높음",
+                            "방문자 증가 추세",
+                            "강수로 인한 야외 수요 감소 가능성",
+                            "관광 자원 밀도가 방문 목적성을 강화"
+                        ],
+        "recommendations":  [
+                                "피크 시간대 판매·응대 인력을 보강",
+                                "식음 인기 품목 재고를 선제적으로 확대",
+                                "행사 전후 2시간 프로모션과 안내 문구를 준비"
+                            ],
+        "forecast":  [
+                         {
+                             "date":  "2026-05-24",
+                             "score":  82
+                         },
+                         {
+                             "date":  "2026-05-25",
+                             "score":  79
+                         },
+                         {
+                             "date":  "2026-05-26",
+                             "score":  79
+                         },
+                         {
+                             "date":  "2026-05-27",
+                             "score":  82
+                         },
+                         {
+                             "date":  "2026-05-28",
+                             "score":  82
+                         },
+                         {
+                             "date":  "2026-05-29",
+                             "score":  79
+                         },
+                         {
+                             "date":  "2026-05-30",
+                             "score":  82
+                         }
+                     ]
+    },
+    {
+        "area_id":  "A004",
+        "area_name":  "1913 송정역시장 / 광주송정역",
+        "district":  "광산구",
+        "matched_store_count":  1002,
+        "area_radius_m":  600,
+        "tourism_score":  78,
+        "tourist_spot_count":  10,
+        "event_count":  4,
+        "culture_count":  5,
+        "visitor_count_gu":  122000,
+        "visitor_growth":  8,
+        "visitor_score":  84,
+        "visitor_summary":  "철도역과 전통시장 유입이 결합된 외부 방문 수요",
+        "temp":  22,
+        "rain_mm":  0,
+        "rain_flag":  0,
+        "weather_score":  88,
+        "weather_risk_level":  "낮음",
+        "weather_summary":  "맑은 날씨와 역세권 이동 수요가 안정적으로 유지",
+        "area_type_summary":  "전통시장 기반 관광 상권",
+        "predicted_score":  58,
+        "change_vs_avg":  "+0%",
+        "risk_level":  "중간",
+        "summary":  "1913 송정역시장 / 광주송정역은 전통시장 기반 관광 상권입니다. 최근 7일 예측 수요는 58점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 78점, 행사 영향 지표는 4건, 문화시설은 5곳 수준입니다. 방문 수요 점수는 84점이고 방문자 증가율은 +8.0%입니다. 철도역과 전통시장 유입이 결합된 외부 방문 수요. 날씨는 22.0도, 강수량 0.0mm, 비 여부는 없음이고 날씨 점수는 88점입니다. 날씨 리스크는 낮음 수준입니다. 맑은 날씨와 역세권 이동 수요가 안정적으로 유지. 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.",
+        "top_factors":  [
+                            "방문 수요 높음",
+                            "방문자 증가 추세",
+                            "날씨 양호",
+                            "날씨 조건이 보행과 체류 수요에 영향"
+                        ],
+        "recommendations":  [
+                                "고정 인력은 유지하고 시간대별 탄력 배치를 준비",
+                                "식음 인기 품목 재고를 선제적으로 확대",
+                                "우천 가능일에는 배달·실내 체류 상품 노출을 강화"
+                            ],
+        "forecast":  [
+                         {
+                             "date":  "2026-05-24",
+                             "score":  61
+                         },
+                         {
+                             "date":  "2026-05-25",
+                             "score":  57
+                         },
+                         {
+                             "date":  "2026-05-26",
+                             "score":  57
+                         },
+                         {
+                             "date":  "2026-05-27",
+                             "score":  57
+                         },
+                         {
+                             "date":  "2026-05-28",
+                             "score":  57
+                         },
+                         {
+                             "date":  "2026-05-29",
+                             "score":  57
+                         },
+                         {
+                             "date":  "2026-05-30",
+                             "score":  61
+                         }
+                     ]
+    },
+    {
+        "area_id":  "A005",
+        "area_name":  "상무지구",
+        "district":  "서구",
+        "matched_store_count":  3358,
+        "area_radius_m":  900,
+        "tourism_score":  45,
+        "tourist_spot_count":  4,
+        "event_count":  2,
+        "culture_count":  2,
+        "visitor_count_gu":  135000,
+        "visitor_growth":  3.2,
+        "visitor_score":  76,
+        "visitor_summary":  "업무지구와 야간 소비가 안정적으로 이어지는 방문 수요",
+        "temp":  26,
+        "rain_mm":  9,
+        "rain_flag":  1,
+        "weather_score":  70,
+        "weather_risk_level":  "중간",
+        "weather_summary":  "업무·야간 수요가 있어 강수 영향은 비교적 완만",
+        "area_type_summary":  "직장인 중심 야간 상권",
+        "predicted_score":  60,
+        "change_vs_avg":  "+0%",
+        "risk_level":  "중간",
+        "summary":  "상무지구는 직장인 중심 야간 상권입니다. 최근 7일 예측 수요는 60점이며 이전 기간 평균 대비 +0%입니다. 관광 점수는 45점, 행사 영향 지표는 2건, 문화시설은 2곳 수준입니다. 방문 수요 점수는 76점이고 방문자 증가율은 +3.2%입니다. 업무지구와 야간 소비가 안정적으로 이어지는 방문 수요. 날씨는 26.0도, 강수량 9.0mm, 비 여부는 있음이고 날씨 점수는 70점입니다. 날씨 리스크는 중간 수준입니다. 업무·야간 수요가 있어 강수 영향은 비교적 완만. 운영 리스크는 중간 수준으로 상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다.",
+        "top_factors":  [
+                            "방문자 증가 추세",
+                            "강수로 인한 야외 수요 감소 가능성",
+                            "날씨 조건이 보행과 체류 수요에 영향",
+                            "상가·음식·소매 밀도가 소비 전환 가능성을 높임"
+                        ],
+        "recommendations":  [
+                                "고정 인력은 유지하고 시간대별 탄력 배치를 준비",
+                                "식음 인기 품목 재고를 선제적으로 확대",
+                                "우천 가능일에는 배달·실내 체류 상품 노출을 강화"
+                            ],
+        "forecast":  [
+                         {
+                             "date":  "2026-05-24",
+                             "score":  62
+                         },
+                         {
+                             "date":  "2026-05-25",
+                             "score":  59
+                         },
+                         {
+                             "date":  "2026-05-26",
+                             "score":  59
+                         },
+                         {
+                             "date":  "2026-05-27",
+                             "score":  59
+                         },
+                         {
+                             "date":  "2026-05-28",
+                             "score":  60
+                         },
+                         {
+                             "date":  "2026-05-29",
+                             "score":  60
+                         },
+                         {
+                             "date":  "2026-05-30",
+                             "score":  62
+                         }
+                     ]
+    }
+]

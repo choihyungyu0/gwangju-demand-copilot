@@ -66,14 +66,19 @@ def pct_change(current: float, baseline: float) -> str:
     return f"{sign}{value}%"
 
 
-def risk_level(latest_rows: list[dict[str, str]], predicted_score: int) -> str:
+def risk_level(
+    latest_rows: list[dict[str, str]],
+    predicted_score: int,
+    weather_risk_level: str,
+    rain_flag: int,
+) -> str:
     rain_days = sum(int(row["rain_flag"]) for row in latest_rows)
     scores = [as_float(row, "demand_score") for row in latest_rows]
     volatility = pstdev(scores) if len(scores) > 1 else 0
 
-    if predicted_score < 55 or rain_days >= 2 or volatility >= 18:
+    if weather_risk_level == "높음" or predicted_score < 55 or rain_days >= 2 or volatility >= 18:
         return "높음"
-    if predicted_score < 72 or rain_days == 1 or volatility >= 10:
+    if weather_risk_level == "중간" or rain_flag == 1 or predicted_score < 72 or rain_days == 1 or volatility >= 10:
         return "중간"
     return "낮음"
 
@@ -86,12 +91,20 @@ def weighted_demand_score(
     weather_score: float,
 ) -> float:
     return (
-        commercial_score * 0.3
-        + tourism_score * 0.25
+        commercial_score * 0.25
+        + tourism_score * 0.2
         + visitor_score * 0.25
         + event_score * 0.1
-        + weather_score * 0.1
+        + weather_score * 0.2
     )
+
+
+def weather_risk_from_score(weather_score: float, rain_flag: int, rain_mm: float) -> str:
+    if rain_mm >= 15 or weather_score < 55:
+        return "높음"
+    if rain_flag == 1 or rain_mm >= 5 or weather_score < 75:
+        return "중간"
+    return "낮음"
 
 
 def classify_area(
@@ -124,12 +137,14 @@ def build_top_factors(
     latest_rows: list[dict[str, str]],
     visitor_score: int,
     visitor_growth: float,
+    rain_flag: int,
+    weather_score: int,
+    weather_risk_level: str,
 ) -> list[str]:
     avg_visitor = mean(as_float(row, "visitor_score") for row in latest_rows)
     avg_event = mean(as_float(row, "event_score") for row in latest_rows)
     avg_tourism = mean(as_float(row, "tourism_score") for row in latest_rows)
     avg_store = mean(as_float(row, "store_score") for row in latest_rows)
-    avg_weather = mean(as_float(row, "weather_score") for row in latest_rows)
 
     factors: list[str] = []
     if visitor_score >= 80:
@@ -138,13 +153,19 @@ def build_top_factors(
         factors.append("방문자 증가 추세")
     elif visitor_growth < 0:
         factors.append("방문자 감소 가능성")
+    if weather_risk_level == "높음":
+        factors.append("날씨 리스크 높음")
+    if rain_flag == 1:
+        factors.append("강수로 인한 야외 수요 감소 가능성")
+    if weather_score >= 80 and weather_risk_level != "높음":
+        factors.append("날씨 양호")
 
     candidates = [
         (avg_visitor, "방문자 흐름이 수요 점수에 기여"),
         (avg_event, "행사·이벤트 일정이 단기 수요를 끌어올림"),
         (avg_tourism, "관광 자원 밀도가 방문 목적성을 강화"),
         (avg_store, "상가·음식·소매 밀도가 소비 전환 가능성을 높임"),
-        (avg_weather, "날씨 조건이 보행과 체류 수요에 영향"),
+        (weather_score, "날씨 조건이 보행과 체류 수요에 영향"),
     ]
     candidates.sort(reverse=True, key=lambda item: item[0])
     for _, label in candidates:
@@ -156,7 +177,12 @@ def build_top_factors(
 
 
 def build_recommendations(
-    area_name: str, latest_rows: list[dict[str, str]], predicted_score: int, risk: str
+    area_name: str,
+    latest_rows: list[dict[str, str]],
+    predicted_score: int,
+    risk: str,
+    rain_flag: int,
+    weather_risk_level: str,
 ) -> list[str]:
     avg_food = mean(as_float(row, "food_count") for row in latest_rows)
     avg_cafe = mean(as_float(row, "cafe_count") for row in latest_rows)
@@ -178,12 +204,12 @@ def build_recommendations(
 
     if avg_event >= 4:
         recommendations.append("행사 전후 2시간 프로모션과 안내 문구를 준비")
-    elif rain_days > 0:
+    elif rain_days > 0 or rain_flag == 1:
         recommendations.append("우천 가능일에는 배달·실내 체류 상품 노출을 강화")
     else:
         recommendations.append(f"{area_name} 방문객 대상 현장 쿠폰을 운영")
 
-    if risk == "높음":
+    if risk == "높음" or weather_risk_level == "높음":
         recommendations.append("예약 취소와 우천 변수에 대비해 당일 발주를 보수적으로 조정")
 
     return recommendations[:4]
@@ -201,15 +227,25 @@ def build_summary(
     visitor_score: int,
     visitor_growth: float,
     visitor_summary: str,
+    temp: float,
+    rain_mm: float,
+    rain_flag: int,
+    weather_score: int,
+    weather_risk_level: str,
+    weather_summary: str,
 ) -> str:
     area_with_particle = f"{area_name}{topic_particle(area_name)}"
     growth_text = f"{visitor_growth:+.1f}%"
+    rain_text = "있음" if rain_flag == 1 else "없음"
     return (
         f"{area_with_particle} {area_type}입니다. 최근 7일 예측 수요는 {predicted_score}점이며 "
         f"이전 기간 평균 대비 {change_text}입니다. 관광 점수는 {tourism_score}점, "
         f"행사 영향 지표는 {event_count}건, 문화시설은 {culture_count}곳 수준입니다. "
         f"방문 수요 점수는 {visitor_score}점이고 방문자 증가율은 {growth_text}입니다. "
-        f"{visitor_summary} "
+        f"{visitor_summary}. "
+        f"날씨는 {temp:.1f}도, 강수량 {rain_mm:.1f}mm, 비 여부는 {rain_text}이고 "
+        f"날씨 점수는 {weather_score}점입니다. 날씨 리스크는 {weather_risk_level} 수준입니다. "
+        f"{weather_summary}. "
         f"운영 리스크는 {risk} 수준으로 "
         "상권 특성에 맞춰 인력, 재고, 프로모션을 함께 조정하는 것이 좋습니다."
     )
@@ -261,6 +297,33 @@ def make_prediction(
         )
     )
     visitor_summary = area_features.get("visitor_summary") or "방문자 feature 정보 없음"
+    temp = round(
+        feature_float(
+            area_features,
+            "temp",
+            mean(row_float(row, "temp") for row in latest_rows),
+        ),
+        1,
+    )
+    rain_mm = round(feature_float(area_features, "rain_mm", 0), 1)
+    rain_flag = round(
+        feature_float(
+            area_features,
+            "rain_flag",
+            max(row_float(row, "rain_flag") for row in latest_rows),
+        )
+    )
+    weather_score = round(
+        feature_float(
+            area_features,
+            "weather_score",
+            mean(row_float(row, "weather_score") for row in latest_rows),
+        )
+    )
+    weather_risk_level = area_features.get("weather_risk_level") or weather_risk_from_score(
+        weather_score, rain_flag, rain_mm
+    )
+    weather_summary = area_features.get("weather_summary") or "날씨 feature 정보 없음"
     area_type = classify_area(
         first["area_name"],
         tourism_score,
@@ -275,7 +338,7 @@ def make_prediction(
             tourism_score,
             visitor_score,
             as_float(row, "event_score"),
-            as_float(row, "weather_score"),
+            weather_score,
         )
         for row in latest_rows
     ]
@@ -285,7 +348,7 @@ def make_prediction(
             tourism_score,
             visitor_score,
             as_float(row, "event_score"),
-            as_float(row, "weather_score"),
+            weather_score,
         )
         for row in history_rows
     ]
@@ -293,7 +356,7 @@ def make_prediction(
     history_avg = mean(history_scores)
     predicted_score = round(latest_avg)
     change_text = pct_change(latest_avg, history_avg)
-    risk = risk_level(latest_rows, predicted_score)
+    risk = risk_level(latest_rows, predicted_score, weather_risk_level, rain_flag)
 
     return {
         "area_id": first["area_id"],
@@ -309,6 +372,12 @@ def make_prediction(
         "visitor_growth": round(visitor_growth, 1),
         "visitor_score": visitor_score,
         "visitor_summary": visitor_summary,
+        "temp": temp,
+        "rain_mm": rain_mm,
+        "rain_flag": rain_flag,
+        "weather_score": weather_score,
+        "weather_risk_level": weather_risk_level,
+        "weather_summary": weather_summary,
         "area_type_summary": area_type,
         "predicted_score": predicted_score,
         "change_vs_avg": change_text,
@@ -325,10 +394,28 @@ def make_prediction(
             visitor_score,
             visitor_growth,
             visitor_summary,
+            temp,
+            rain_mm,
+            rain_flag,
+            weather_score,
+            weather_risk_level,
+            weather_summary,
         ),
-        "top_factors": build_top_factors(latest_rows, visitor_score, visitor_growth),
+        "top_factors": build_top_factors(
+            latest_rows,
+            visitor_score,
+            visitor_growth,
+            rain_flag,
+            weather_score,
+            weather_risk_level,
+        ),
         "recommendations": build_recommendations(
-            first["area_name"], latest_rows, predicted_score, risk
+            first["area_name"],
+            latest_rows,
+            predicted_score,
+            risk,
+            rain_flag,
+            weather_risk_level,
         ),
         "forecast": [
             {"date": row["date"], "score": round(score)}

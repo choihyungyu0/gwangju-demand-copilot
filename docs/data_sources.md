@@ -45,6 +45,20 @@
 - `visitor_growth`: 직전 기간 대비 방문자 증가율입니다. 양수면 방문자 증가 추세, 음수면 감소 가능성을 의미합니다.
 - `visitor_score`: 방문자 규모와 증가 추세를 0-100 범위로 환산한 MVP용 방문 수요 점수입니다.
 
+## 기상청 단기예보 조회서비스
+
+- 상태: mock feature pipeline 구성 완료, 향후 실제 기상청 단기예보 API로 대체 예정
+- 목적: 강수, 기온 등 외부 날씨 변수가 보행·관광·야외 홍보 수요에 주는 리스크를 보완합니다.
+- 현재 output: `data/processed/weather_area_features.csv`
+
+### Planned/Used Features
+
+- `temp`: 지역별 예보 기온입니다.
+- `rain_mm`: 예보 강수량입니다.
+- `rain_flag`: 강수 여부입니다. 1이면 비가 있는 조건으로 간주합니다.
+- `weather_score`: 기온과 강수 영향을 0-100 범위로 환산한 MVP용 날씨 수요 점수입니다.
+- `weather_risk_level`: 강수량과 날씨 점수에 따른 낮음/중간/높음 리스크 구분입니다.
+
 ## Integration Notes
 
 - 지역 단위 key를 먼저 표준화한 뒤 상권, 관광, 날씨 데이터를 결합합니다.

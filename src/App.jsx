@@ -78,6 +78,15 @@ function App() {
   const visitorScore = selectedArea.visitor_score ?? 0
   const visitorSummary = selectedArea.visitor_summary ?? '방문 수요 정보 없음'
   const visitorGrowthText = `${visitorGrowth > 0 ? '+' : ''}${visitorGrowth}%`
+  const temp = selectedArea.temp ?? 0
+  const rainMm = selectedArea.rain_mm ?? 0
+  const rainFlag = selectedArea.rain_flag ?? 0
+  const weatherScore = selectedArea.weather_score ?? 0
+  const weatherRiskLevel = selectedArea.weather_risk_level ?? '정보 없음'
+  const weatherSummary = selectedArea.weather_summary ?? '날씨 정보 없음'
+  const tempText = `${Number(temp).toFixed(1)}℃`
+  const rainMmText = `${Number(rainMm).toFixed(1)}mm`
+  const rainText = Number(rainFlag) === 1 ? '예' : '아니오'
 
   return (
     <main className="app-shell">
@@ -193,6 +202,35 @@ function App() {
               <div>
                 <dt>방문 수요 점수</dt>
                 <dd>{visitorScore}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="weather-section" aria-labelledby="weather-title">
+            <div>
+              <h3 id="weather-title">날씨 리스크 요약</h3>
+              <p>{weatherSummary}</p>
+            </div>
+            <dl className="weather-metrics" aria-label="날씨 리스크 지표">
+              <div>
+                <dt>기온</dt>
+                <dd>{tempText}</dd>
+              </div>
+              <div>
+                <dt>강수량</dt>
+                <dd>{rainMmText}</dd>
+              </div>
+              <div>
+                <dt>비 여부</dt>
+                <dd>{rainText}</dd>
+              </div>
+              <div>
+                <dt>날씨 점수</dt>
+                <dd>{weatherScore}</dd>
+              </div>
+              <div>
+                <dt>날씨 리스크</dt>
+                <dd>{weatherRiskLevel}</dd>
               </div>
             </dl>
           </section>
